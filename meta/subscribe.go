@@ -7,11 +7,11 @@ import (
 	"net/http"
 )
 
-type subscriptionReq struct {
+type request struct {
 	Channels []string
 }
 
-type subscriptionRes struct {
+type response struct {
 	Channel    string `json:"channel"`
 	Successful bool   `json:"successful"`
 	// ClientID     string `json:"clientId"`
@@ -27,7 +27,8 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	subReq, err := json.Marshal(body)
+	req := request{}
+	err = json.Unmarshal(body, req)
 	if err != nil {
 		unsuccess(subHandler, "", w)
 		return
