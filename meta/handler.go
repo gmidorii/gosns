@@ -14,7 +14,7 @@ func Handler() {
 	http.HandleFunc(subHandler, subscribe)
 }
 
-func unsuccess(v interface{}, w http.ResponseWriter) {
+func writeRes(v interface{}, w http.ResponseWriter) {
 	json, err := json.Marshal(v)
 	if err != nil {
 		return
