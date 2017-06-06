@@ -83,12 +83,7 @@ func register(req request) ([]string, error) {
 		return nil, errors.New("not founc topic")
 	}
 
-	byte, err := json.Marshal(s)
-	if err != nil {
-		return nil, err
-	}
-	err = ioutil.WriteFile(subscribedFile, byte, 0666)
-	if err != nil {
+	if err = writeSubscribed(s); err != nil {
 		return nil, errors.New("register subscribed failed")
 	}
 	return registered, nil
@@ -121,6 +116,14 @@ func readSubscribed() ([]subscribed, error) {
 		return nil, err
 	}
 	return s, nil
+}
+
+func writeSubscribed(s []subscribed) error {
+	byte, err := json.Marshal(s)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(subscribedFile, byte, 0666)
 }
 
 func unsuccessed(errMes, clientID string, sub []string, w http.ResponseWriter) {
