@@ -19,11 +19,11 @@ type request struct {
 }
 
 type response struct {
-	Channel      string `json:"channel"`
-	Successful   bool   `json:"successful"`
-	ClientID     string `json:"clientId"`
-	Subscription string `json:"subscription"`
-	Error        string `json:",omitempty"`
+	Channel      string   `json:"channel"`
+	Successful   bool     `json:"successful"`
+	ClientID     string   `json:"clientId"`
+	Subscription []string `json:"subscription"`
+	Error        string   `json:",omitempty"`
 }
 
 type subscribed struct {
@@ -36,13 +36,8 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		res := response{
-			Channel:      subHandler,
-			Successful:   false,
-			Subscription: "",
-			Error:        "read body error",
-		}
-		writeRes(res, w)
+		log.Println(err)
+		unsuccessed("read body error", "", []string{}, w)
 		return
 	}
 	defer r.Body.Close()
@@ -50,35 +45,18 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 	req := request{}
 	err = json.Unmarshal(body, &req)
 	if err != nil {
-		log.Println(string(body))
 		log.Println(err)
-		res := response{
-			Channel:      subHandler,
-			Successful:   false,
-			Subscription: "",
-			Error:        "parse request to json error",
-		}
-		writeRes(res, w)
+		unsuccessed("parse request to json error", "", []string{}, w)
 		return
 	}
 
 	if err = register(req); err != nil {
 		log.Println(err)
-		res := response{
-			Channel:      subHandler,
-			Successful:   false,
-			Subscription: "",
-			Error:        "regiser faild",
-		}
-		writeRes(res, w)
+		unsuccessed("register faild", "", []string{}, w)
 		return
 	}
-	res := response{
-		Channel:      subHandler,
-		Successful:   true,
-		Subscription: "",
-	}
-	writeRes(res, w)
+
+	successed(req.ClientID, req.Subscription, w)
 }
 
 func register(req request) error {
@@ -133,4 +111,23 @@ func contains(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func unsuccessed(errMes, clientID string, sub []string, w http.ResponseWriter) {
+	write(false, errMes, clientID, sub, w)
+}
+
+func successed(clientID string, sub []string, w http.ResponseWriter) {
+	write(true, "", clientID, sub, w)
+}
+
+func write(success bool, mes, clientID string, sub []string, w http.ResponseWriter) {
+	res := response{
+		Channel:      subHandler,
+		Successful:   success,
+		ClientID:     clientID,
+		Subscription: sub,
+		Error:        mes,
+	}
+	writeRes(res, w)
 }
