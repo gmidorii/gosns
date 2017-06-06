@@ -14,20 +14,21 @@ var (
 
 type request struct {
 	Channel      string   `json:"channel"`
+	ClientID     string   `json:"client_id"`
 	Subscription []string `json:"subscription"`
 }
 
 type response struct {
-	Channel    string `json:"channel"`
-	Successful bool   `json:"successful"`
-	// ClientID     string `json:"clientId"`
+	Channel      string `json:"channel"`
+	Successful   bool   `json:"successful"`
+	ClientID     string `json:"clientId"`
 	Subscription string `json:"subscription"`
-	Error        string
+	Error        string `json:",omitempty"`
 }
 
 type subscribed struct {
-	Channel    string
-	Subscribes []string
+	Channel string
+	Clients []string
 }
 
 func subscribe(w http.ResponseWriter, r *http.Request) {
@@ -99,20 +100,22 @@ func register(req request) error {
 	}
 	if len(s) != 0 {
 		for _, v := range s {
-			if v.Channel == req.Channel {
-				for _, sub := range req.Subscription {
-					if !contains(v.Subscribes, sub) {
-						v.Subscribes = append(v.Subscribes, sub)
-					}
+			if contains(req.Subscription, v.Channel) {
+				if !contains(v.Clients, req.ClientID) {
+					v.Clients = append(v.Clients, req.ClientID)
 				}
 			} else {
-				v.Subscribes = append(v.Subscribes, req.Subscription...)
+				newSub := subscribed{
+					Channel: req.Channel,
+					Clients: []string{req.ClientID},
+				}
+				s = append(s, newSub)
 			}
 		}
 	} else {
 		s = append(s, subscribed{
-			Channel:    req.Channel,
-			Subscribes: req.Subscription,
+			Channel: req.Channel,
+			Clients: []string{req.ClientID},
 		})
 	}
 
