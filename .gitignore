@@ -16,3 +16,6 @@
 # gin
 gin-bin
 nohup.out
+
+# saved subscription
+subscribed.json
