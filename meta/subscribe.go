@@ -2,6 +2,7 @@ package meta
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -50,58 +51,57 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = register(req); err != nil {
+	registered, err := register(req)
+	if err != nil {
 		log.Println(err)
-		unsuccessed("register faild", "", []string{}, w)
+		unsuccessed(err.Error(), req.ClientID, []string{}, w)
 		return
 	}
 
-	successed(req.ClientID, req.Subscription, w)
+	successed(req.ClientID, registered, w)
 }
 
-func register(req request) error {
+func register(req request) ([]string, error) {
 	file, err := os.OpenFile(subscribedFile, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer file.Close()
 
 	v, err := ioutil.ReadAll(file)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	s := []subscribed{}
 	err = json.Unmarshal(v, &s)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if len(s) != 0 {
-		for _, v := range s {
-			if contains(req.Subscription, v.Channel) {
-				if !contains(v.Clients, req.ClientID) {
-					v.Clients = append(v.Clients, req.ClientID)
-				}
-			} else {
-				newSub := subscribed{
-					Channel: req.Channel,
-					Clients: []string{req.ClientID},
-				}
-				s = append(s, newSub)
+	if len(s) == 0 {
+		return nil, errors.New("not found topic")
+	}
+	var registered = []string{}
+	for i, v := range s {
+		if contains(req.Subscription, v.Channel) {
+			if !contains(v.Clients, req.ClientID) {
+				s[i].Clients = append(s[i].Clients, req.ClientID)
 			}
+			registered = append(registered, v.Channel)
 		}
-	} else {
-		s = append(s, subscribed{
-			Channel: req.Channel,
-			Clients: []string{req.ClientID},
-		})
 	}
-
+	if len(registered) == 0 {
+		return nil, errors.New("not founc topic")
+	}
 	byte, err := json.Marshal(s)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return ioutil.WriteFile(subscribedFile, byte, 0666)
+	err = ioutil.WriteFile(subscribedFile, byte, 0666)
+	if err != nil {
+		return nil, errors.New("register subscribed failed")
+	}
+	return registered, nil
 }
 
 func contains(s []string, e string) bool {
