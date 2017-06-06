@@ -62,25 +62,14 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 }
 
 func register(req request) ([]string, error) {
-	file, err := os.OpenFile(subscribedFile, os.O_RDWR|os.O_CREATE, 0666)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	v, err := ioutil.ReadAll(file)
-	if err != nil {
-		return nil, err
-	}
-
-	s := []subscribed{}
-	err = json.Unmarshal(v, &s)
+	s, err := readSubscribed()
 	if err != nil {
 		return nil, err
 	}
 	if len(s) == 0 {
 		return nil, errors.New("not found topic")
 	}
+
 	var registered = []string{}
 	for i, v := range s {
 		if contains(req.Subscription, v.Channel) {
@@ -93,6 +82,7 @@ func register(req request) ([]string, error) {
 	if len(registered) == 0 {
 		return nil, errors.New("not founc topic")
 	}
+
 	byte, err := json.Marshal(s)
 	if err != nil {
 		return nil, err
@@ -111,6 +101,26 @@ func contains(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func readSubscribed() ([]subscribed, error) {
+	file, err := os.OpenFile(subscribedFile, os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	v, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	s := []subscribed{}
+	err = json.Unmarshal(v, &s)
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
 func unsuccessed(errMes, clientID string, sub []string, w http.ResponseWriter) {
