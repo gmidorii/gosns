@@ -6,12 +6,14 @@ import (
 )
 
 var (
-	subHandler = "/meta/subscribe"
+	handshakeHandler = "/meta/handshake"
+	subHandler       = "/meta/subscribe"
 )
 
 // Handler is meta channel definition
 func Handler() {
 	http.HandleFunc(subHandler, subscribe)
+	http.HandleFunc(handshakeHandler, handshake)
 }
 
 func writeRes(v interface{}, w http.ResponseWriter) {
