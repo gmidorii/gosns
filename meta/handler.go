@@ -11,7 +11,7 @@ var (
 )
 
 // Handler is meta channel definition
-func Handler() {
+func Handler(path string) {
 	http.HandleFunc(subHandler, subscribe)
 	http.HandleFunc(handshakeHandler, handshake)
 }
