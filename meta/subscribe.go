@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/midorigreen/gopubsub/topic"
 )
 
 var (
@@ -14,9 +16,9 @@ var (
 )
 
 type request struct {
-	Channel      string   `json:"channel"`
-	ClientID     string   `json:"client_id"`
-	Subscription []string `json:"subscription"`
+	Channel       string   `json:"channel"`
+	ClientID      string   `json:"client_id"`
+	Subscriptions []string `json:"subscription"`
 }
 
 type response struct {
@@ -25,11 +27,6 @@ type response struct {
 	ClientID     string   `json:"clientId"`
 	Subscription []string `json:"subscription"`
 	Error        string   `json:",omitempty"`
-}
-
-type subscribed struct {
-	Channel string
-	Clients []string
 }
 
 func subscribe(w http.ResponseWriter, r *http.Request) {
@@ -72,9 +69,12 @@ func register(req request) ([]string, error) {
 
 	var registered = []string{}
 	for i, v := range s {
-		if contains(req.Subscription, v.Channel) {
-			if !contains(v.Clients, req.ClientID) {
-				s[i].Clients = append(s[i].Clients, req.ClientID)
+		if containsSlice(v.Channel, req.Subscriptions) {
+			if !containsSubscriber(req.ClientID, v.Subscribers) {
+				s[i].Subscribers = append(s[i].Subscribers, topic.Subscriber{
+					ClientID: req.ClientID,
+				})
+
 			}
 			registered = append(registered, v.Channel)
 		}
@@ -89,7 +89,7 @@ func register(req request) ([]string, error) {
 	return registered, nil
 }
 
-func contains(s []string, e string) bool {
+func containsSlice(e string, s []string) bool {
 	for _, v := range s {
 		if e == v {
 			return true
@@ -98,7 +98,16 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-func readSubscribed() ([]subscribed, error) {
+func containsSubscriber(e string, s []topic.Subscriber) bool {
+	for _, v := range s {
+		if e == v.ClientID {
+			return true
+		}
+	}
+	return false
+}
+
+func readSubscribed() ([]topic.Topic, error) {
 	file, err := os.OpenFile(subscribedFile, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		return nil, err
@@ -110,7 +119,7 @@ func readSubscribed() ([]subscribed, error) {
 		return nil, err
 	}
 
-	s := []subscribed{}
+	s := []topic.Topic{}
 	err = json.Unmarshal(v, &s)
 	if err != nil {
 		return nil, err
@@ -118,8 +127,8 @@ func readSubscribed() ([]subscribed, error) {
 	return s, nil
 }
 
-func writeSubscribed(s []subscribed) error {
-	byte, err := json.Marshal(s)
+func writeSubscribed(s []topic.Topic) error {
+	byte, err := json.MarshalIndent(s, "", "\t")
 	if err != nil {
 		return err
 	}
