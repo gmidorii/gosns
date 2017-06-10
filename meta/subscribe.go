@@ -6,13 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/midorigreen/gopubsub/topic"
-)
-
-var (
-	subscribedFile = "./subscribed.json"
 )
 
 type request struct {
@@ -59,10 +54,7 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 }
 
 func register(req request) ([]string, error) {
-	s, err := readSubscribed()
-	if err != nil {
-		return nil, err
-	}
+	s := topic.LoadTopics()
 	if len(s) == 0 {
 		return nil, errors.New("not found topic")
 	}
@@ -83,7 +75,7 @@ func register(req request) ([]string, error) {
 		return nil, errors.New("not founc topic")
 	}
 
-	if err = writeSubscribed(s); err != nil {
+	if err := writeSubscribed(s); err != nil {
 		return nil, errors.New("register subscribed failed")
 	}
 	return registered, nil
@@ -107,32 +99,12 @@ func containsSubscriber(e string, s []topic.Subscriber) bool {
 	return false
 }
 
-func readSubscribed() ([]topic.Topic, error) {
-	file, err := os.OpenFile(subscribedFile, os.O_RDWR|os.O_CREATE, 0666)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	v, err := ioutil.ReadAll(file)
-	if err != nil {
-		return nil, err
-	}
-
-	s := []topic.Topic{}
-	err = json.Unmarshal(v, &s)
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
-}
-
 func writeSubscribed(s []topic.Topic) error {
 	byte, err := json.MarshalIndent(s, "", "\t")
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(subscribedFile, byte, 0666)
+	return ioutil.WriteFile(topic.FilePath, byte, 0666)
 }
 
 func unsuccessed(errMes, clientID string, sub []string, w http.ResponseWriter) {
