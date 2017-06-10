@@ -26,7 +26,7 @@ const (
 	topicsPath = "/topics"
 )
 
-var topics = LoadTopics()
+var topics []Topic
 
 // Handler is topic handler
 func Handler() {
@@ -34,11 +34,11 @@ func Handler() {
 }
 
 func topicsHandler(w http.ResponseWriter, r *http.Request) {
+	topics := LoadTopics()
 	log.Println(topics)
 }
 
-// LoadTopics is loading topics in file
-// You must execute this when add topic or subscriber
+// LoadTopics is loading file registered topic information
 func LoadTopics() []Topic {
 	file, err := os.OpenFile(FilePath, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
