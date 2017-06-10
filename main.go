@@ -8,13 +8,9 @@ import (
 	"github.com/midorigreen/gopubsub/topic"
 )
 
-const (
-	path = "/gopubsub"
-)
-
 func main() {
-	topic.Handler(path)
-	meta.Handler(path)
+	topic.Handler()
+	meta.Handler()
 	err := http.ListenAndServe(":8888", nil)
 	if err != nil {
 		log.Fatal("ListenAndServer: ", err)

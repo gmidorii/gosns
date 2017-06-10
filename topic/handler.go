@@ -5,9 +5,9 @@ import "net/http"
 const topicsPath = "/topics"
 
 // Handler is topic handler
-func Handler(path string) {
-	http.HandleFunc(path+topicsPath, topics)
+func Handler() {
+	http.HandleFunc(topicsPath, topicsHandler)
 }
 
-func topics(w http.ResponseWriter, r *http.Request) {
+func topicsHandler(w http.ResponseWriter, r *http.Request) {
 }
