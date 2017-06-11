@@ -104,7 +104,11 @@ func writeSubscribed(s []topic.Topic) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(topic.FilePath, byte, 0666)
+	if err := ioutil.WriteFile(topic.FilePath, byte, 0666); err != nil {
+		return err
+	}
+	topic.ReLoadTopics()
+	return nil
 }
 
 func unsuccessed(errMes, clientID string, sub []string, w http.ResponseWriter) {

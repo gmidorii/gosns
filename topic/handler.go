@@ -15,6 +15,5 @@ func Handler() {
 }
 
 func topicsHandler(w http.ResponseWriter, r *http.Request) {
-	topics := LoadTopics()
-	log.Println(topics)
+	log.Println(*BufTopics.Get().(*[]Topic))
 }

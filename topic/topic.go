@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sync"
 )
 
 // Topic is main struct in package topic
@@ -24,7 +25,12 @@ const (
 	FilePath = "./subscribed.json"
 )
 
-var topics []Topic
+var BufTopics = sync.Pool{
+	New: func() interface{} {
+		topics := LoadTopics()
+		return &topics
+	},
+}
 
 // LoadTopics is loading file registered topic information
 func LoadTopics() []Topic {
@@ -48,4 +54,12 @@ func LoadTopics() []Topic {
 		return nil
 	}
 	return s
+}
+
+// ReLoadTopics is topics cache reloading
+func ReLoadTopics() {
+	topics := BufTopics.Get().(*[]Topic)
+	topicsTmp := LoadTopics()
+	topics = &topicsTmp
+	BufTopics.Put(topics)
 }
