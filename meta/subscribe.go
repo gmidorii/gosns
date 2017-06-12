@@ -54,7 +54,7 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 }
 
 func register(req request) ([]string, error) {
-	s := topic.LoadTopics()
+	s := *topic.LoadTopics()
 	if len(s) == 0 {
 		return nil, errors.New("not found topic")
 	}

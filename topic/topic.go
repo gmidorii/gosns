@@ -27,13 +27,17 @@ const (
 
 var BufTopics = sync.Pool{
 	New: func() interface{} {
-		topics := LoadTopics()
+		topics := []Topic{}
 		return &topics
 	},
 }
 
+func init() {
+	BufTopics.Put(LoadTopics())
+}
+
 // LoadTopics is loading file registered topic information
-func LoadTopics() []Topic {
+func LoadTopics() *[]Topic {
 	file, err := os.OpenFile(FilePath, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatalln(err)
@@ -53,13 +57,12 @@ func LoadTopics() []Topic {
 		log.Fatalln(err)
 		return nil
 	}
-	return s
+	return &s
 }
 
 // ReLoadTopics is topics cache reloading
 func ReLoadTopics() {
-	topics := BufTopics.Get().(*[]Topic)
-	topicsTmp := LoadTopics()
-	topics = &topicsTmp
+	BufTopics.Get()
+	topics := LoadTopics()
 	BufTopics.Put(topics)
 }
