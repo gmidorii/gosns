@@ -1,6 +1,7 @@
 package topic
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -14,4 +15,9 @@ func Handler() {
 }
 
 func topicsHandler(w http.ResponseWriter, r *http.Request) {
+	m := Mail{}
+	err := m.Send("")
+	if err != nil {
+		log.Fatal(err)
+	}
 }

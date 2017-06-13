@@ -20,6 +20,10 @@ type Subscriber struct {
 	ClientID string
 }
 
+type Sender interface {
+	Send(body string) (string, error)
+}
+
 const (
 	// FilePath is file path registerd topics information
 	FilePath = "./subscribed.json"
