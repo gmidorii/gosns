@@ -1,8 +1,6 @@
 package meta
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
@@ -25,20 +23,8 @@ const (
 )
 
 func handshake(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		res := handShakeResponse{
-			Channel:    handshakeHandler,
-			Successful: false,
-		}
-		writeRes(res, w)
-		return
-	}
-	defer r.Body.Close()
-
 	req := handShakeRequest{}
-	err = json.Unmarshal(body, &req)
+	err := decodeBody(r, &req)
 	if err != nil {
 		log.Println(err)
 		res := handShakeResponse{

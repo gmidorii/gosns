@@ -16,6 +16,12 @@ func Handler() {
 	http.HandleFunc(subHandler, subscribe)
 }
 
+func decodeBody(req *http.Request, out interface{}) error {
+	defer req.Body.Close()
+	decoder := json.NewDecoder(req.Body)
+	return decoder.Decode(out)
+}
+
 func writeRes(v interface{}, w http.ResponseWriter) {
 	json, err := json.Marshal(v)
 	if err != nil {

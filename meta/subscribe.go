@@ -26,17 +26,8 @@ type response struct {
 
 func subscribe(w http.ResponseWriter, r *http.Request) {
 	log.Println(subHandler)
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		unsuccessed("read body error", "", []string{}, w)
-		return
-	}
-	defer r.Body.Close()
-
 	req := request{}
-	err = json.Unmarshal(body, &req)
+	err := decodeBody(r, &req)
 	if err != nil {
 		log.Println(err)
 		unsuccessed("parse request to json error", "", []string{}, w)
