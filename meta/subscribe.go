@@ -10,13 +10,13 @@ import (
 	"github.com/midorigreen/gopubsub/topic"
 )
 
-type request struct {
+type subscribeReq struct {
 	Channel       string   `json:"channel"`
 	ClientID      string   `json:"client_id"`
 	Subscriptions []string `json:"subscription"`
 }
 
-type response struct {
+type subscribeRes struct {
 	Channel      string   `json:"channel"`
 	Successful   bool     `json:"successful"`
 	ClientID     string   `json:"clientId"`
@@ -26,7 +26,7 @@ type response struct {
 
 func subscribe(w http.ResponseWriter, r *http.Request) {
 	log.Println(subHandler)
-	req := request{}
+	req := subscribeReq{}
 	err := decodeBody(r, &req)
 	if err != nil {
 		log.Println(err)
@@ -44,7 +44,7 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 	successed(req.ClientID, registered, w)
 }
 
-func register(req request) ([]string, error) {
+func register(req subscribeReq) ([]string, error) {
 	s := *topic.LoadTopics()
 	if len(s) == 0 {
 		return nil, errors.New("not found topic")
@@ -111,7 +111,7 @@ func successed(clientID string, sub []string, w http.ResponseWriter) {
 }
 
 func write(success bool, mes, clientID string, sub []string, w http.ResponseWriter) {
-	res := response{
+	res := subscribeRes{
 		Channel:      subHandler,
 		Successful:   success,
 		ClientID:     clientID,
