@@ -6,12 +6,12 @@ import (
 	"net/http"
 )
 
-type handShakeRequest struct {
+type handShakeReq struct {
 	Channel                  string
 	SupportedConnectionTypes []string
 }
 
-type handShakeResponse struct {
+type handShakeRes struct {
 	Channel                  string
 	SupportedConnectionTypes []string
 	ClientID                 string `json:"client_id"`
@@ -20,14 +20,15 @@ type handShakeResponse struct {
 
 const (
 	randLetter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	randLen    = 10
 )
 
 func handshake(w http.ResponseWriter, r *http.Request) {
-	req := handShakeRequest{}
+	req := handShakeReq{}
 	err := decodeBody(r, &req)
 	if err != nil {
 		log.Println(err)
-		res := handShakeResponse{
+		res := handShakeRes{
 			Channel:    handshakeHandler,
 			Successful: false,
 		}
@@ -35,16 +36,16 @@ func handshake(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := handShakeResponse{
+	res := handShakeRes{
 		Channel:                  handshakeHandler,
 		SupportedConnectionTypes: req.SupportedConnectionTypes,
 		Successful:               true,
-		ClientID:                 randString(10),
+		ClientID:                 geneRandStr(randLen),
 	}
 	writeRes(res, w)
 }
 
-func randString(n int) string {
+func geneRandStr(n int) string {
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = randLetter[rand.Intn(len(randLetter))]
