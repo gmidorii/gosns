@@ -33,6 +33,19 @@ func GetTopics() []Topic {
 	return cpTopics
 }
 
+// PutTopics id writing file and pool topics reload
+func PutTopics(topics []Topic) error {
+	byte, err := json.MarshalIndent(topics, "", "\t")
+	if err != nil {
+		return err
+	}
+	if err := ioutil.WriteFile(poolPath, byte, 0666); err != nil {
+		return err
+	}
+	ReLoadTopics()
+	return nil
+}
+
 // LoadTopics is loading file registered topic information
 func LoadTopics() *[]Topic {
 	file, err := os.OpenFile(poolPath, os.O_RDWR|os.O_CREATE, 0666)

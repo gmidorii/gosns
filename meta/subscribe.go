@@ -1,9 +1,7 @@
 package meta
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -66,7 +64,7 @@ func register(req subscribeReq) ([]string, error) {
 		return nil, errors.New("not founc topic")
 	}
 
-	if err := writeSubscribed(s); err != nil {
+	if err := channel.PutTopics(s); err != nil {
 		return nil, errors.New("register subscribed failed")
 	}
 	return registered, nil
@@ -88,18 +86,6 @@ func containsSubscriber(e string, s []channel.Subscriber) bool {
 		}
 	}
 	return false
-}
-
-func writeSubscribed(s []channel.Topic) error {
-	byte, err := json.MarshalIndent(s, "", "\t")
-	if err != nil {
-		return err
-	}
-	if err := ioutil.WriteFile(channel.FilePath, byte, 0666); err != nil {
-		return err
-	}
-	channel.ReLoadTopics()
-	return nil
 }
 
 func unsuccessed(errMes, clientID string, sub []string, w http.ResponseWriter) {
