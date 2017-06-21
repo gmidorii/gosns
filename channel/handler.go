@@ -1,4 +1,4 @@
-package topic
+package channel
 
 import (
 	"encoding/json"

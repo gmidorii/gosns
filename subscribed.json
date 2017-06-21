@@ -9,10 +9,16 @@
 				"ClientID": "green"
 			},
 			{
-				"ClientID": "green-2"
+				"ClientID": "blue"
 			},
 			{
-				"ClientID": "green-3"
+				"ClientID": "yello"
+			},
+			{
+				"ClientID": "pink"
+			},
+			{
+				"ClientID": "black"
 			}
 		]
 	}

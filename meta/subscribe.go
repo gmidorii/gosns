@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/midorigreen/gopubsub/topic"
+	"github.com/midorigreen/gopubsub/channel"
 )
 
 type subscribeReq struct {
@@ -45,7 +45,7 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 }
 
 func register(req subscribeReq) ([]string, error) {
-	s := *topic.LoadTopics()
+	s := *channel.LoadTopics()
 	if len(s) == 0 {
 		return nil, errors.New("not found topic")
 	}
@@ -54,7 +54,7 @@ func register(req subscribeReq) ([]string, error) {
 	for i, v := range s {
 		if containsSlice(v.Channel, req.Subscriptions) {
 			if !containsSubscriber(req.ClientID, v.Subscribers) {
-				s[i].Subscribers = append(s[i].Subscribers, topic.Subscriber{
+				s[i].Subscribers = append(s[i].Subscribers, channel.Subscriber{
 					ClientID: req.ClientID,
 				})
 
@@ -81,7 +81,7 @@ func containsSlice(e string, s []string) bool {
 	return false
 }
 
-func containsSubscriber(e string, s []topic.Subscriber) bool {
+func containsSubscriber(e string, s []channel.Subscriber) bool {
 	for _, v := range s {
 		if e == v.ClientID {
 			return true
@@ -90,15 +90,15 @@ func containsSubscriber(e string, s []topic.Subscriber) bool {
 	return false
 }
 
-func writeSubscribed(s []topic.Topic) error {
+func writeSubscribed(s []channel.Topic) error {
 	byte, err := json.MarshalIndent(s, "", "\t")
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(topic.FilePath, byte, 0666); err != nil {
+	if err := ioutil.WriteFile(channel.FilePath, byte, 0666); err != nil {
 		return err
 	}
-	topic.ReLoadTopics()
+	channel.ReLoadTopics()
 	return nil
 }
 

@@ -1,4 +1,4 @@
-package topic
+package channel
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ type Subscriber struct {
 	ClientID string
 }
 
-type Sender interface {
+type SubscriberService interface {
 	Send(body string) (string, error)
 }
 
