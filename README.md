@@ -10,3 +10,4 @@ Using messaging model is Pub-Sub messaging model.
   - Slack
   - HTTP
   - etc
+- Add PubSubModel
