@@ -4,7 +4,7 @@ import (
 	"net/smtp"
 )
 
-type Mail struct {
+type Mailer struct {
 	from    string
 	to      string
 	title   string
@@ -13,7 +13,7 @@ type Mail struct {
 	pwd     string
 }
 
-func (m *Mail) Send(body string) error {
+func (m *Mailer) Send(body string) error {
 	auth := smtp.PlainAuth("", m.usrname, m.pwd, "smtp.gmail.com")
 	if err := smtp.SendMail("smtp.gmail.com:587", auth, m.from, []string{m.to}, []byte(m.body)); err != nil {
 		return err

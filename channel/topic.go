@@ -12,6 +12,14 @@ type Subscriber struct {
 	ClientID string
 }
 
+// Format is defined as subscribed format
+type Format int
+
+const (
+	Slack Format = iota
+	Mail
+)
+
 // SubscriberService interface must be implemented for subscriber
 type SubscriberService interface {
 	Send(body string) (string, error)
