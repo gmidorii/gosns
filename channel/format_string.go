@@ -4,9 +4,9 @@ package channel
 
 import "fmt"
 
-const _Format_name = "SlackMail"
+const _Format_name = "SlackMailError"
 
-var _Format_index = [...]uint8{0, 5, 9}
+var _Format_index = [...]uint8{0, 5, 9, 14}
 
 func (i Format) String() string {
 	if i < 0 || i >= Format(len(_Format_index)-1) {

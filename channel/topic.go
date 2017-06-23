@@ -18,6 +18,7 @@ type Format int
 const (
 	Slack Format = iota
 	Mail
+	Error
 )
 
 // SubscriberService interface must be implemented for subscriber
