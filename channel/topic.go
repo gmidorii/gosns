@@ -10,6 +10,12 @@ type Topic struct {
 // Subscriber has subscriber imformation only
 type Subscriber struct {
 	ClientID string
+	Method   Method
+}
+
+type Method struct {
+	Format     Format
+	WebFookURL string
 }
 
 // Format is defined as subscribed format
@@ -24,4 +30,15 @@ const (
 // SubscriberService interface must be implemented for subscriber
 type SubscriberService interface {
 	Send(body string) (string, error)
+}
+
+func FormatValue(s string) Format {
+	switch s {
+	case "slack":
+		return Slack
+	case "mail":
+		return Mail
+	default:
+		return Error
+	}
 }
