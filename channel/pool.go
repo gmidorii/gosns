@@ -61,6 +61,10 @@ func LoadTopics() *[]Topic {
 		return nil
 	}
 
+	if len(v) == 0 {
+		return &[]Topic{}
+	}
+
 	s := []Topic{}
 	err = json.Unmarshal(v, &s)
 	if err != nil {
