@@ -29,7 +29,7 @@ const (
 
 // SubscriberService interface must be implemented for subscriber
 type SubscriberService interface {
-	Send(body string) (string, error)
+	Send(body string, method Method) error
 }
 
 func FormatValue(s string) Format {
