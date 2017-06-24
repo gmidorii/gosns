@@ -20,29 +20,15 @@ func Handler() {
 }
 
 func topicsHandler(w http.ResponseWriter, r *http.Request) {
-	var t topicReq
-	decodeBody(r, &t)
-	topic := findChannel(GetTopics(), t.Channel)
+	var tReq topicReq
+	decodeBody(r, &tReq)
+	topic := findChannel(GetTopics(), tReq.Channel)
 	if topic.Channel == "" {
 		w.Write([]byte("not found channel"))
 		return
 	}
-	go func(topic Topic, t topicReq) {
-		for _, v := range topic.Subscribers {
-			var service SubscriberService
-			switch v.Method.Format {
-			case Slack:
-				service = &SlackSender{
-					URL: v.Method.WebFookURL,
-				}
-			// case Mail:
-			default:
-				continue
-			}
-			service.Send(t.Data)
-		}
-	}(topic, t)
-	w.Write([]byte(t.Channel))
+	go sends(topic, tReq)
+	w.Write([]byte("ok"))
 }
 
 func decodeBody(req *http.Request, out interface{}) error {
