@@ -4,12 +4,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/midorigreen/gopubsub/channel"
 	"github.com/midorigreen/gopubsub/meta"
-	"github.com/midorigreen/gopubsub/topic"
 )
 
 func main() {
-	topic.Handler()
+	channel.Handler()
 	meta.Handler()
 	err := http.ListenAndServe(":8888", nil)
 	if err != nil {
