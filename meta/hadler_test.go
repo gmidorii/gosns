@@ -29,3 +29,28 @@ func TestDecodeBody(t *testing.T) {
 		t.Log("s.Name: " + s.Name + ", Name: hoge")
 	}
 }
+
+func TestWriteRes(t *testing.T) {
+	w := httptest.NewRecorder()
+	sample := Sample{2, "hoge"}
+	writeRes(sample, w)
+	resp := w.Result()
+	if len(resp.Header) != 1 {
+		t.Error("unexpected header length")
+		t.Log(len(resp.Header))
+	}
+	for key, v := range resp.Header {
+		if key != "Content-Type" {
+			t.Error("unexpected header key")
+			t.Log(key)
+		}
+		if len(v) != 1 {
+			t.Error("unexpected value length")
+			t.Log(len(v))
+		}
+		if v[0] != "application/json" {
+			t.Error("unexpected header value")
+			t.Log(v)
+		}
+	}
+}
