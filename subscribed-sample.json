@@ -1,0 +1,14 @@
+[
+	{
+		"Channel": "/news",
+		"Subscribers": [
+			{
+				"ClientID": "XVlBzgbaiC ",
+        "Method" : {
+          "Format": 0,
+          "WebFookURL": "http://hoge"
+        }
+			}
+		]
+	}
+]
