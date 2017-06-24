@@ -2,17 +2,35 @@ package channel
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
+
+type SlackSender struct {
+	URL string
+}
+
+type slackBody struct {
+	Text string `json:"text"`
+}
 
 const bodyType = "application/json"
 
 // Send is implemented SubscriberService interface
 // this send message to slack
-func Send(body string, method Method) error {
-	resp, err := http.Post(method.WebFookURL, bodyType, bytes.NewBufferString(body))
+func (s *SlackSender) Send(body string) error {
+	fmt.Println(body)
+	sb := slackBody{
+		Text: body,
+	}
+	postBody, err := json.Marshal(sb)
+	if err != nil {
+		return err
+	}
+	resp, err := http.Post(s.URL, bodyType, bytes.NewBuffer(postBody))
 	if err != nil {
 		return err
 	}
