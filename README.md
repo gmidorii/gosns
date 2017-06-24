@@ -6,9 +6,9 @@ Using messaging model is Pub-Sub messaging model.
 
 ## TODO
 - Increasing Subsriver accesepting method
-  - [] Mail
-  - [] Slack
-  - [] HTTP
+  - [ ] Mail
+  - [ ] Slack
+  - [ ] HTTP
   - etc
-- [] Add PubSubModel
+- [ ] Add PubSubModel
 - [ ] Add Topic API
