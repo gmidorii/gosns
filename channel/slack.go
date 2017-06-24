@@ -9,6 +9,7 @@ import (
 	"net/http"
 )
 
+// SlackSender is implemented SubscriberService interface
 type SlackSender struct {
 	URL string
 }
@@ -19,8 +20,7 @@ type slackBody struct {
 
 const bodyType = "application/json"
 
-// Send is implemented SubscriberService interface
-// this send message to slack
+// Send has method send message to slack
 func (s *SlackSender) Send(body string) error {
 	fmt.Println(body)
 	sb := slackBody{

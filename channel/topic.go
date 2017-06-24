@@ -13,6 +13,7 @@ type Subscriber struct {
 	Method   Method
 }
 
+// Method is defined as message transmission method
 type Method struct {
 	Format     Format
 	WebFookURL string
@@ -22,8 +23,11 @@ type Method struct {
 type Format int
 
 const (
+	// Slack is format type slack service
 	Slack Format = iota
+	// Mail is format type e-mail
 	Mail
+	// Error is case error
 	Error
 )
 
@@ -32,6 +36,7 @@ type SubscriberService interface {
 	Send(body string) error
 }
 
+// FormatValue is string to Format type
 func FormatValue(s string) Format {
 	switch s {
 	case "slack":

@@ -9,7 +9,6 @@ import (
 )
 
 const (
-	// FilePath is file path registerd topics information
 	poolPath = "./subscribed.json"
 )
 
