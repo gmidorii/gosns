@@ -23,13 +23,13 @@ const (
 	randLen    = 10
 )
 
-func handshake(w http.ResponseWriter, r *http.Request) {
+func handshakeHandler(w http.ResponseWriter, r *http.Request) {
 	req := handShakeReq{}
 	err := decodeBody(r, &req)
 	if err != nil {
 		log.Println(err)
 		res := handShakeRes{
-			Channel:    handshakeHandler,
+			Channel:    handshakePattarn,
 			Successful: false,
 		}
 		writeRes(res, w)
@@ -37,7 +37,7 @@ func handshake(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := handShakeRes{
-		Channel:                  handshakeHandler,
+		Channel:                  handshakePattarn,
 		SupportedConnectionTypes: req.SupportedConnectionTypes,
 		Successful:               true,
 		ClientID:                 geneRandStr(randLen),

@@ -28,8 +28,8 @@ type subscribeRes struct {
 	Error        string   `json:",omitempty"`
 }
 
-func subscribe(w http.ResponseWriter, r *http.Request) {
-	log.Println(subHandler)
+func subscribeHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println(subscribePattarn)
 	req := subscribeReq{}
 	err := decodeBody(r, &req)
 	if err != nil {
@@ -113,7 +113,7 @@ func successed(clientID string, sub []string, w http.ResponseWriter) {
 
 func write(success bool, mes, clientID string, sub []string, w http.ResponseWriter) {
 	res := subscribeRes{
-		Channel:      subHandler,
+		Channel:      subscribePattarn,
 		Successful:   success,
 		ClientID:     clientID,
 		Subscription: sub,

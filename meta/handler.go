@@ -6,14 +6,16 @@ import (
 )
 
 var (
-	handshakeHandler = "/meta/handshake"
-	subHandler       = "/meta/subscribe"
+	handshakePattarn = "/meta/handshake"
+	subscribePattarn = "/meta/subscribe"
+	topicPattarn     = "/meta/topic"
 )
 
 // Handler is meta channel definition
 func Handler() {
-	http.HandleFunc(handshakeHandler, handshake)
-	http.HandleFunc(subHandler, subscribe)
+	http.HandleFunc(handshakePattarn, handshakeHandler)
+	http.HandleFunc(subscribePattarn, subscribeHandler)
+	http.HandleFunc(topicPattarn, topicHandler)
 }
 
 func decodeBody(req *http.Request, out interface{}) error {
