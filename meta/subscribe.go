@@ -17,7 +17,7 @@ type subscribeReq struct {
 
 type strMethod struct {
 	Format     string `json:"format"`
-	WebHookURL string `json:"webhook_url`
+	WebHookURL string `json:"webhook_url"`
 }
 
 type subscribeRes struct {
