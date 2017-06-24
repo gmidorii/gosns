@@ -54,13 +54,13 @@ func register(sReq subscribeReq) ([]string, error) {
 		return nil, errors.New("not found topic")
 	}
 
+	format := channel.FormatValue(sReq.Method.Format)
+	if format == channel.Error {
+		return nil, errors.New("subscribed format error: " + format.String())
+	}
 	var registered = []string{}
 	for i, v := range topics {
 		if checkAppendSubscribed(sReq, v) {
-			format := channel.FormatValue(sReq.Method.Format)
-			if format == channel.Error {
-				continue
-			}
 			topics[i].Subscribers = append(topics[i].Subscribers, channel.Subscriber{
 				ClientID: sReq.ClientID,
 				Method: channel.Method{
@@ -72,7 +72,7 @@ func register(sReq subscribeReq) ([]string, error) {
 		}
 	}
 	if len(registered) == 0 {
-		return nil, errors.New("not founc topic")
+		return nil, errors.New("not found topic")
 	}
 
 	if err := channel.PutTopics(topics); err != nil {
