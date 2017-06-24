@@ -9,9 +9,15 @@ import (
 )
 
 type subscribeReq struct {
-	Channel       string   `json:"channel"`
-	ClientID      string   `json:"client_id"`
-	Subscriptions []string `json:"subscription"`
+	Channel       string    `json:"channel"`
+	ClientID      string    `json:"client_id"`
+	Subscriptions []string  `json:"subscription"`
+	Method        strMethod `json:"method"`
+}
+
+type strMethod struct {
+	Format     string `json:"format"`
+	WebHookURL string `json:"webhook_url`
 }
 
 type subscribeRes struct {
@@ -42,21 +48,26 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 	successed(req.ClientID, registered, w)
 }
 
-func register(req subscribeReq) ([]string, error) {
-	s := *channel.LoadTopics()
-	if len(s) == 0 {
+func register(sReq subscribeReq) ([]string, error) {
+	topics := *channel.LoadTopics()
+	if len(topics) == 0 {
 		return nil, errors.New("not found topic")
 	}
 
 	var registered = []string{}
-	for i, v := range s {
-		if containsSlice(v.Channel, req.Subscriptions) {
-			if !containsSubscriber(req.ClientID, v.Subscribers) {
-				s[i].Subscribers = append(s[i].Subscribers, channel.Subscriber{
-					ClientID: req.ClientID,
-				})
-
+	for i, v := range topics {
+		if checkAppendSubscribed(sReq, v) {
+			format := channel.FormatValue(sReq.Method.Format)
+			if format == channel.Error {
+				continue
 			}
+			topics[i].Subscribers = append(topics[i].Subscribers, channel.Subscriber{
+				ClientID: sReq.ClientID,
+				Method: channel.Method{
+					Format:     format,
+					WebFookURL: sReq.Method.WebHookURL,
+				},
+			})
 			registered = append(registered, v.Channel)
 		}
 	}
@@ -64,13 +75,17 @@ func register(req subscribeReq) ([]string, error) {
 		return nil, errors.New("not founc topic")
 	}
 
-	if err := channel.PutTopics(s); err != nil {
+	if err := channel.PutTopics(topics); err != nil {
 		return nil, errors.New("register subscribed failed")
 	}
 	return registered, nil
 }
 
-func containsSlice(e string, s []string) bool {
+func checkAppendSubscribed(sReq subscribeReq, t channel.Topic) bool {
+	return containsSlice(sReq.Subscriptions, t.Channel) && !containsSubscriber(sReq.ClientID, t.Subscribers)
+}
+
+func containsSlice(s []string, e string) bool {
 	for _, v := range s {
 		if e == v {
 			return true
