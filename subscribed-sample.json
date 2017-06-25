@@ -3,11 +3,23 @@
 		"Channel": "/news",
 		"Subscribers": [
 			{
-				"ClientID": "XVlBzgbaiC ",
+				"ClientID": "XVlBzgbaiC",
         "Method" : {
           "Format": 0,
           "WebFookURL": "http://hoge"
         }
+			}
+		]
+	},
+	{
+		"Channel": "/scala",
+		"Subscribers": [
+			{
+				"ClientID": "tg",
+				"Method": {
+					"Format": 0,
+					"WebFookURL": "https://hoge/exec"
+				}
 			}
 		]
 	}
