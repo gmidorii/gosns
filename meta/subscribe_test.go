@@ -7,6 +7,7 @@ import (
 	"sync"
 	"testing"
 
+	httpdoc "github.com/mercari/go-httpdoc"
 	"github.com/midorigreen/gopubsub/channel"
 
 	"bytes"
@@ -44,9 +45,11 @@ func createSubscribedFile(path string) error {
 	_, err = file.Write([]byte(jsonTopics))
 	return err
 }
+
 func deleteTestFile(path string) error {
 	return os.Remove(path)
 }
+
 func contains(s string, slice []channel.Subscriber) bool {
 	for _, v := range slice {
 		if v.ClientID == s {
@@ -57,6 +60,16 @@ func contains(s string, slice []channel.Subscriber) bool {
 }
 
 func TestHandler(t *testing.T) {
+	document := &httpdoc.Document{
+		Name:           "Subscribe API",
+		ExcludeHeaders: []string{},
+	}
+	defer func() {
+		if err := document.Generate("doc/subscribe.md"); err != nil {
+			t.Fatalf("err: %s", err)
+		}
+	}()
+
 	path := "./subscribed-test.json"
 	err := createSubscribedFile(path)
 	if err != nil {
@@ -65,7 +78,9 @@ func TestHandler(t *testing.T) {
 	s := Subscribe{
 		TopicPool: createTopicPool(path, t),
 	}
-	ts := httptest.NewServer(http.HandlerFunc(s.handler))
+	mux := http.NewServeMux()
+	mux.Handle("/meta/subscribe", httpdoc.Record(http.HandlerFunc(s.handler), document, &httpdoc.RecordOption{Description: "Register topic subscribed"}))
+	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
 	reqBody := `
@@ -81,7 +96,7 @@ func TestHandler(t *testing.T) {
   }
 }
 `
-	res, err := http.Post(ts.URL, "application/json", bytes.NewBufferString(reqBody))
+	res, err := http.Post(ts.URL+"/meta/subscribe", "application/json", bytes.NewBufferString(reqBody))
 	if err != nil {
 		t.Error("server connection error")
 	}
@@ -101,7 +116,7 @@ func TestHandler(t *testing.T) {
 	}
 
 	// cache delete (temporary solution)
-	s.TopicPool.Get()
+	s.TopicPool.Value.Get()
 	topics := s.TopicPool.Get().([]channel.Topic)
 	f := false
 	for _, v := range topics {
