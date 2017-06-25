@@ -19,3 +19,7 @@ nohup.out
 
 # saved subscription
 subscribed.json
+
+# vscode file
+.vscode/
+debug
