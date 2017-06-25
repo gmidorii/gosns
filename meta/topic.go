@@ -17,7 +17,7 @@ type topicRes struct {
 }
 
 func topicHandler(w http.ResponseWriter, r *http.Request) {
-	topics := channel.GetTopics()
+	topics := channel.PoolTopics.Get().([]channel.Topic)
 	if len(topics) == 0 {
 		topics = []channel.Topic{}
 	}
@@ -34,7 +34,7 @@ func topicHandler(w http.ResponseWriter, r *http.Request) {
 		Channel: tReq.Channel,
 	})
 
-	if err := channel.PutTopics(topics); err != nil {
+	if err := channel.PoolTopics.Put(topics); err != nil {
 		writeRes(topicRes{
 			Channel:    tReq.Channel,
 			Successful: false,

@@ -49,9 +49,9 @@ func subscribeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func register(sReq subscribeReq) ([]string, error) {
-	topics := *channel.LoadTopics()
+	topics := channel.PoolTopics.Get().([]channel.Topic)
 	if len(topics) == 0 {
-		return nil, errors.New("not found topic")
+		return nil, errors.New("not found topics")
 	}
 
 	format := channel.FormatValue(sReq.Method.Format)
@@ -75,7 +75,7 @@ func register(sReq subscribeReq) ([]string, error) {
 		return nil, errors.New("not found topic")
 	}
 
-	if err := channel.PutTopics(topics); err != nil {
+	if err := channel.PoolTopics.Put(topics); err != nil {
 		return nil, errors.New("register subscribed failed")
 	}
 	return registered, nil

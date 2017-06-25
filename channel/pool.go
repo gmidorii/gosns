@@ -2,8 +2,8 @@ package channel
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
-	"log"
 	"os"
 	"sync"
 )
@@ -12,70 +12,95 @@ const (
 	poolPath = "./subscribed.json"
 )
 
-var poolTopics = sync.Pool{
-	New: func() interface{} {
-		topics := []Topic{}
-		return &topics
+// PoolTopics is singleton topics cache
+var PoolTopics = TopicPool{
+	Value: sync.Pool{
+		New: func() interface{} {
+			topics, err := loadFile(poolPath)
+			if err != nil {
+				return &[]Topic{}
+			}
+			return &topics
+		},
 	},
+	Path: poolPath,
 }
 
 func init() {
-	poolTopics.Put(LoadTopics())
+	PoolTopics.Load()
 }
 
-// GetTopics get topics from pool
-func GetTopics() []Topic {
-	topics := poolTopics.Get().(*[]Topic)
+// TopicPool is topic info pooling
+// topic info master date has `subscribed.json`
+type TopicPool struct {
+	Value sync.Pool
+	Path  string
+}
+
+// Pooler is pool interface
+type Pooler interface {
+	Get() interface{}
+	Put(v interface{}) error
+	Load()
+}
+
+// Get get topics from pool
+func (p *TopicPool) Get() interface{} {
+	topics := p.Value.Get().(*[]Topic)
 	cpTopics := make([]Topic, len(*topics))
 	copy(cpTopics, *topics)
-	poolTopics.Put(topics)
+	p.Value.Put(topics)
 	return cpTopics
 }
 
-// PutTopics id writing file and pool topics reload
-func PutTopics(topics []Topic) error {
+// Put is writing file and pool topics reload
+func (p *TopicPool) Put(v interface{}) error {
+	topics, ok := v.([]Topic)
+	if ok != true {
+		return errors.New("Put argument type []Topic")
+	}
+
 	byte, err := json.MarshalIndent(topics, "", "\t")
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(poolPath, byte, 0666); err != nil {
+	if err := ioutil.WriteFile(p.Path, byte, 0666); err != nil {
 		return err
 	}
-	ReLoadTopics()
+	p.Value.Put(&topics)
 	return nil
 }
 
-// LoadTopics is loading file registered topic information
-func LoadTopics() *[]Topic {
-	file, err := os.OpenFile(poolPath, os.O_RDWR|os.O_CREATE, 0666)
+// Load is loading file registered topic information
+func (p *TopicPool) Load() error {
+	s, err := loadFile(p.Path)
 	if err != nil {
-		log.Fatalln(err)
-		return nil
+		return err
+	}
+	p.Value.Put(&s)
+	return nil
+}
+
+func loadFile(path string) ([]Topic, error) {
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		return nil, err
 	}
 	defer file.Close()
 
 	v, err := ioutil.ReadAll(file)
 	if err != nil {
-		log.Fatalln(err)
-		return nil
+		return nil, err
 	}
 
 	if len(v) == 0 {
-		return &[]Topic{}
+		return nil, nil
 	}
 
 	s := []Topic{}
 	err = json.Unmarshal(v, &s)
 	if err != nil {
-		log.Fatalln(err)
-		return nil
+		return nil, err
 	}
-	return &s
-}
-
-// ReLoadTopics is topics cache reloading
-func ReLoadTopics() {
-	poolTopics.Get()
-	topics := LoadTopics()
-	poolTopics.Put(topics)
+	return s, nil
 }

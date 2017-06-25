@@ -22,7 +22,7 @@ func Handler() {
 func topicsHandler(w http.ResponseWriter, r *http.Request) {
 	var tReq topicReq
 	decodeBody(r, &tReq)
-	topic := findChannel(GetTopics(), tReq.Channel)
+	topic := findChannel(PoolTopics.Get().([]Topic), tReq.Channel)
 	if topic.Channel == "" {
 		w.Write([]byte("not found channel"))
 		return
