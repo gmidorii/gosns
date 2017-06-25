@@ -16,7 +16,7 @@ const (
 var PoolTopics = TopicPool{
 	Value: sync.Pool{
 		New: func() interface{} {
-			topics, err := loadFile(poolPath)
+			topics, err := LoadFile(poolPath)
 			if err != nil {
 				return &[]Topic{}
 			}
@@ -73,7 +73,7 @@ func (p *TopicPool) Put(v interface{}) error {
 
 // Load is loading file registered topic information
 func (p *TopicPool) Load() error {
-	s, err := loadFile(p.Path)
+	s, err := LoadFile(p.Path)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (p *TopicPool) Load() error {
 	return nil
 }
 
-func loadFile(path string) ([]Topic, error) {
+func LoadFile(path string) ([]Topic, error) {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		return nil, err

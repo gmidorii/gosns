@@ -4,21 +4,28 @@
 		"Subscribers": [
 			{
 				"ClientID": "XVlBzgbaiC",
-        "Method" : {
-          "Format": 0,
-          "WebFookURL": "http://hoge"
-        }
+				"Method": {
+					"Format": 0,
+					"WebFookURL": "http://hoge"
+				}
 			}
 		]
 	},
 	{
-		"Channel": "/scala",
+		"Channel": "/golang",
 		"Subscribers": [
 			{
 				"ClientID": "tg",
 				"Method": {
 					"Format": 0,
 					"WebFookURL": "https://hoge/exec"
+				}
+			},
+			{
+				"ClientID": "hogehoge",
+				"Method": {
+					"Format": 0,
+					"WebFookURL": "https://hooks.slack.com/services/XXXXX"
 				}
 			}
 		]

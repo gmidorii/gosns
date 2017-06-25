@@ -8,6 +8,10 @@ import (
 	"github.com/midorigreen/gopubsub/channel"
 )
 
+type Subscribe struct {
+	TopicPool *channel.TopicPool
+}
+
 type subscribeReq struct {
 	Channel       string    `json:"channel"`
 	ClientID      string    `json:"client_id"`
@@ -28,7 +32,7 @@ type subscribeRes struct {
 	Error        string   `json:",omitempty"`
 }
 
-func subscribeHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Subscribe) handler(w http.ResponseWriter, r *http.Request) {
 	log.Println(subscribePattarn)
 	req := subscribeReq{}
 	err := decodeBody(r, &req)
@@ -38,7 +42,7 @@ func subscribeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	registered, err := register(req)
+	registered, err := register(req, s.TopicPool)
 	if err != nil {
 		log.Println(err)
 		unsuccessed(err.Error(), req.ClientID, []string{}, w)
@@ -48,8 +52,8 @@ func subscribeHandler(w http.ResponseWriter, r *http.Request) {
 	successed(req.ClientID, registered, w)
 }
 
-func register(sReq subscribeReq) ([]string, error) {
-	topics := channel.PoolTopics.Get().([]channel.Topic)
+func register(sReq subscribeReq, tp *channel.TopicPool) ([]string, error) {
+	topics := tp.Get().([]channel.Topic)
 	if len(topics) == 0 {
 		return nil, errors.New("not found topics")
 	}
@@ -75,7 +79,7 @@ func register(sReq subscribeReq) ([]string, error) {
 		return nil, errors.New("not found topic")
 	}
 
-	if err := channel.PoolTopics.Put(topics); err != nil {
+	if err := tp.Put(topics); err != nil {
 		return nil, errors.New("register subscribed failed")
 	}
 	return registered, nil

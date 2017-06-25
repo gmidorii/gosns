@@ -3,6 +3,8 @@ package meta
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/midorigreen/gopubsub/channel"
 )
 
 var (
@@ -14,7 +16,10 @@ var (
 // Handler is meta channel definition
 func Handler() {
 	http.HandleFunc(handshakePattarn, handshakeHandler)
-	http.HandleFunc(subscribePattarn, subscribeHandler)
+	s := Subscribe{
+		TopicPool: &channel.PoolTopics,
+	}
+	http.HandleFunc(subscribePattarn, s.handler)
 	http.HandleFunc(topicPattarn, topicHandler)
 }
 
