@@ -17,7 +17,7 @@ var (
 func Handler() {
 	http.HandleFunc(handshakePattarn, handshakeHandler)
 	s := Subscribe{
-		TopicPool: &channel.PoolTopics,
+		TopicData: channel.CreateTopicData(),
 	}
 	http.HandleFunc(subscribePattarn, s.handler)
 	http.HandleFunc(topicPattarn, topicHandler)

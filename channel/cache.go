@@ -25,7 +25,7 @@ func init() {
 // TopicDataService is interface dealing with topic data
 type TopicDataService interface {
 	Add(topic Topic) error
-	Update(topic Topic) error
+	Update(topic []Topic) error
 }
 
 // TopicData is topic file path and cache
@@ -36,8 +36,8 @@ type TopicData struct {
 
 // CreateTopicData is generating topic data
 // TopicData struct should be only created by this func
-func CreateTopicData() TopicData {
-	return TopicData{
+func CreateTopicData() *TopicData {
+	return &TopicData{
 		Path: file,
 		Ds:   ds,
 	}
@@ -65,21 +65,23 @@ func (d *TopicData) Add(topic Topic) error {
 }
 
 // Update is update topic to file and cache
-func (d *TopicData) Update(topic Topic) error {
-	topics, err := loadFile(d.Path)
+func (d *TopicData) Update(topics []Topic) error {
+	nowTopics, err := loadFile(d.Path)
 	if err != nil {
 		return err
 	}
-	var upTopic Topic
-	for _, v := range topics {
-		if v.Channel == topic.Channel {
-			// TODO: duplication check
-			v.Subscribers = append(v.Subscribers, topic.Subscribers...)
-			upTopic = v
-			break
+	var upTopics []Topic
+	for _, topic := range topics {
+		for _, nowTopic := range nowTopics {
+			if topic.Channel == nowTopic.Channel {
+				// TODO: duplication check
+				nowTopic.Subscribers = append(nowTopic.Subscribers, topic.Subscribers...)
+				upTopics = append(upTopics, topic)
+				break
+			}
 		}
 	}
-	if upTopic.Channel == "" {
+	if len(upTopics) == 0 {
 		return errors.New("not existing topic which try to update")
 	}
 
@@ -89,15 +91,21 @@ func (d *TopicData) Update(topic Topic) error {
 	}
 
 	// update cache
-	_, ok := d.Ds.Get(upTopic.Channel)
-	if ok != true {
-		return errors.New("failed update cache")
+	for _, v := range upTopics {
+		// cache clear
+		_, ok := d.Ds.Get(v.Channel)
+		if ok != true {
+			return errors.New("failed update cache")
+		}
+		subByte, err := json.Marshal(v.Subscribers)
+		if err != nil {
+			return err
+		}
+		if err = d.Ds.Set(v.Channel, string(subByte), 24*time.Hour); err != nil {
+			return err
+		}
 	}
-	subByte, err := json.Marshal(upTopic.Subscribers)
-	if err != nil {
-		return err
-	}
-	return d.Ds.Set(upTopic.Channel, string(subByte), 24*time.Hour)
+	return nil
 }
 
 func loadFile(path string) ([]Topic, error) {

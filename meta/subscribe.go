@@ -8,8 +8,9 @@ import (
 	"github.com/midorigreen/gopubsub/channel"
 )
 
+// Subscribe is defined subscribe handler dependency
 type Subscribe struct {
-	TopicPool *channel.TopicPool
+	TopicData *channel.TopicData
 }
 
 type subscribeReq struct {
@@ -42,7 +43,7 @@ func (s *Subscribe) handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	registered, err := register(req, s.TopicPool)
+	registered, err := register(req, s.TopicData)
 	if err != nil {
 		log.Println(err)
 		unsuccessed(err.Error(), req.ClientID, []string{}, w)
@@ -52,59 +53,40 @@ func (s *Subscribe) handler(w http.ResponseWriter, r *http.Request) {
 	successed(req.ClientID, registered, w)
 }
 
-func register(sReq subscribeReq, tp *channel.TopicPool) ([]string, error) {
-	topics := tp.Get().([]channel.Topic)
-	if len(topics) == 0 {
-		return nil, errors.New("not found topics")
-	}
-
+func register(sReq subscribeReq, td *channel.TopicData) ([]string, error) {
 	format := channel.FormatValue(sReq.Method.Format)
 	if format == channel.Error {
 		return nil, errors.New("subscribed format error: " + format.String())
 	}
+
 	var registered = []string{}
-	for i, v := range topics {
-		if checkAppendSubscribed(sReq, v) {
-			topics[i].Subscribers = append(topics[i].Subscribers, channel.Subscriber{
-				ClientID: sReq.ClientID,
-				Method: channel.Method{
-					Format:     format,
-					WebFookURL: sReq.Method.WebHookURL,
+	var topics []channel.Topic
+	for _, v := range sReq.Subscriptions {
+		topic := channel.Topic{
+			Channel: v,
+			Subscribers: []channel.Subscriber{
+				{
+					ClientID: sReq.ClientID,
+					Method: channel.Method{
+						Format:     format,
+						WebFookURL: sReq.Method.WebHookURL,
+					},
 				},
-			})
-			registered = append(registered, v.Channel)
+			},
 		}
+		topics = append(topics, topic)
+		registered = append(registered, topic.Channel)
 	}
-	if len(registered) == 0 {
+
+	if len(topics) == 0 {
 		return nil, errors.New("not found topic")
 	}
 
-	if err := tp.Put(topics); err != nil {
-		return nil, errors.New("register subscribed failed")
+	if err := td.Update(topics); err != nil {
+		return nil, err
 	}
+
 	return registered, nil
-}
-
-func checkAppendSubscribed(sReq subscribeReq, t channel.Topic) bool {
-	return containsSlice(sReq.Subscriptions, t.Channel) && !containsSubscriber(sReq.ClientID, t.Subscribers)
-}
-
-func containsSlice(s []string, e string) bool {
-	for _, v := range s {
-		if e == v {
-			return true
-		}
-	}
-	return false
-}
-
-func containsSubscriber(e string, s []channel.Subscriber) bool {
-	for _, v := range s {
-		if e == v.ClientID {
-			return true
-		}
-	}
-	return false
 }
 
 func unsuccessed(errMes, clientID string, sub []string, w http.ResponseWriter) {
