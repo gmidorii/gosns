@@ -23,3 +23,6 @@ subscribed.json
 # vscode file
 .vscode/
 debug
+
+# vendor
+vendor
