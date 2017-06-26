@@ -70,12 +70,7 @@ func (d *TopicData) Add(topic Topic) error {
 		return err
 	}
 
-	// add cache
-	subByte, err := json.Marshal(topic.Subscribers)
-	if err != nil {
-		return err
-	}
-	return d.Ds.Set(topic.Channel, string(subByte), 24*time.Hour)
+	return addCache(topic, d.Ds)
 }
 
 // Update is update topic to file and cache
@@ -111,11 +106,7 @@ func (d *TopicData) Update(topics []Topic) error {
 		if ok != true {
 			return errors.New("failed update cache")
 		}
-		subByte, err := json.Marshal(v.Subscribers)
-		if err != nil {
-			return err
-		}
-		if err = d.Ds.Set(v.Channel, string(subByte), 24*time.Hour); err != nil {
+		if err = addCache(v, d.Ds); err != nil {
 			return err
 		}
 	}
@@ -123,11 +114,21 @@ func (d *TopicData) Update(topics []Topic) error {
 }
 
 // Fetch is fetching topic from cache (and file)
-func (t *TopicData) Fetch(channel string) (Topic, error) {
-	str, ok := t.Ds.Get(channel)
+func (d *TopicData) Fetch(channel string) (Topic, error) {
+	str, ok := d.Ds.Get(channel)
 	if ok != true {
-		// TODO: when not found cache, read file
-		return Topic{}, errors.New("not found channel from cache")
+		// fail safe for cache
+		topics, err := loadFile(d.Path)
+		if err != nil {
+			return Topic{}, errors.New("not found channel from cache and " + err.Error())
+		}
+		for _, v := range topics {
+			if channel == v.Channel {
+				addCache(v, d.Ds)
+				return v, nil
+			}
+		}
+		return Topic{}, errors.New("not found channel from cache and file")
 	}
 	var subscribers []Subscriber
 	err := json.Unmarshal([]byte(str), &subscribers)
@@ -173,4 +174,12 @@ func writeFile(topics []Topic, path string) error {
 		return err
 	}
 	return nil
+}
+
+func addCache(topic Topic, ds *dscache.Dscache) error {
+	subByte, err := json.Marshal(topic.Subscribers)
+	if err != nil {
+		return err
+	}
+	return ds.Set(topic.Channel, string(subByte), 24*time.Hour)
 }
