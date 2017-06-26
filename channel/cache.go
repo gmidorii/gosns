@@ -39,6 +39,7 @@ func init() {
 type TopicDataService interface {
 	Add(topic Topic) error
 	Update(topic []Topic) error
+	Fetch(channel string) (Topic, error)
 }
 
 // TopicData is topic file path and cache
@@ -106,7 +107,7 @@ func (d *TopicData) Update(topics []Topic) error {
 	// update cache
 	for _, v := range upTopics {
 		// cache clear
-		_, ok := d.Ds.Get(v.Channel)
+		ok := d.Ds.Purge(v.Channel)
 		if ok != true {
 			return errors.New("failed update cache")
 		}
@@ -119,6 +120,24 @@ func (d *TopicData) Update(topics []Topic) error {
 		}
 	}
 	return nil
+}
+
+// Fetch is fetching topic from cache (and file)
+func (t *TopicData) Fetch(channel string) (Topic, error) {
+	str, ok := t.Ds.Get(channel)
+	if ok != true {
+		// TODO: when not found cache, read file
+		return Topic{}, errors.New("not found channel from cache")
+	}
+	var subscribers []Subscriber
+	err := json.Unmarshal([]byte(str), &subscribers)
+	if err != nil {
+		return Topic{}, err
+	}
+	return Topic{
+		Channel:     channel,
+		Subscribers: subscribers,
+	}, nil
 }
 
 func loadFile(path string) ([]Topic, error) {

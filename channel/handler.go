@@ -9,6 +9,10 @@ const (
 	topicsPath = "/topics"
 )
 
+type topic struct {
+	TopicData *TopicData
+}
+
 type topicReq struct {
 	Channel string `json:"channel"`
 	Data    string `json:"data"`
@@ -16,14 +20,17 @@ type topicReq struct {
 
 // Handler is topic handler
 func Handler() {
-	http.HandleFunc(topicsPath, topicsHandler)
+	t := topic{
+		TopicData: CreateTopicData(),
+	}
+	http.HandleFunc(topicsPath, t.handler)
 }
 
-func topicsHandler(w http.ResponseWriter, r *http.Request) {
+func (t *topic) handler(w http.ResponseWriter, r *http.Request) {
 	var tReq topicReq
 	decodeBody(r, &tReq)
-	topic := findChannel(PoolTopics.Get().([]Topic), tReq.Channel)
-	if topic.Channel == "" {
+	topic, err := t.TopicData.Fetch(tReq.Channel)
+	if err != nil {
 		w.Write([]byte("not found channel"))
 		return
 	}
