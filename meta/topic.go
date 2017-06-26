@@ -6,6 +6,10 @@ import (
 	"github.com/midorigreen/gopubsub/channel"
 )
 
+type topic struct {
+	TopicData *channel.TopicData
+}
+
 type topicReq struct {
 	Channel string `json:"channel"`
 }
@@ -16,12 +20,7 @@ type topicRes struct {
 	Error      string `json:"error,omitempty"`
 }
 
-func topicHandler(w http.ResponseWriter, r *http.Request) {
-	topics := channel.PoolTopics.Get().([]channel.Topic)
-	if len(topics) == 0 {
-		topics = []channel.Topic{}
-	}
-
+func (t *topic) handler(w http.ResponseWriter, r *http.Request) {
 	var tReq topicReq
 	if err := decodeBody(r, &tReq); err != nil {
 		writeRes(topicRes{
@@ -30,15 +29,15 @@ func topicHandler(w http.ResponseWriter, r *http.Request) {
 		}, w)
 	}
 
-	topics = append(topics, channel.Topic{
+	topic := channel.Topic{
 		Channel: tReq.Channel,
-	})
+	}
 
-	if err := channel.PoolTopics.Put(topics); err != nil {
+	if err := t.TopicData.Add(topic); err != nil {
 		writeRes(topicRes{
 			Channel:    tReq.Channel,
 			Successful: false,
-			Error:      "failed append new topic",
+			Error:      err.Error(),
 		}, w)
 	}
 	writeRes(topicRes{
