@@ -8,8 +8,7 @@ import (
 	"github.com/midorigreen/gopubsub/channel"
 )
 
-// Subscribe is defined subscribe handler dependency
-type Subscribe struct {
+type subscribe struct {
 	TopicData *channel.TopicData
 }
 
@@ -33,7 +32,7 @@ type subscribeRes struct {
 	Error        string   `json:",omitempty"`
 }
 
-func (s *Subscribe) handler(w http.ResponseWriter, r *http.Request) {
+func (s *subscribe) handler(w http.ResponseWriter, r *http.Request) {
 	log.Println(subscribePattarn)
 	req := subscribeReq{}
 	err := decodeBody(r, &req)

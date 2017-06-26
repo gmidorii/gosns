@@ -16,11 +16,14 @@ var (
 // Handler is meta channel definition
 func Handler() {
 	http.HandleFunc(handshakePattarn, handshakeHandler)
-	s := Subscribe{
+	s := subscribe{
 		TopicData: channel.CreateTopicData(),
 	}
 	http.HandleFunc(subscribePattarn, s.handler)
-	http.HandleFunc(topicPattarn, topicHandler)
+	t := topic{
+		TopicData: channel.CreateTopicData(),
+	}
+	http.HandleFunc(topicPattarn, t.handler)
 }
 
 func decodeBody(req *http.Request, out interface{}) error {
