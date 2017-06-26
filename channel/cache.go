@@ -20,6 +20,19 @@ func init() {
 	if dsErr != nil {
 		log.Fatalf("err: %s", dsErr)
 	}
+	topics, err := loadFile(file)
+	if err != nil {
+		log.Fatalf("err: %s", err)
+	}
+	for _, v := range topics {
+		subByte, err := json.Marshal(v.Subscribers)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		if err = ds.Set(v.Channel, string(subByte), 24*time.Hour); err != nil {
+			log.Fatalln(err)
+		}
+	}
 }
 
 // TopicDataService is interface dealing with topic data
@@ -72,10 +85,10 @@ func (d *TopicData) Update(topics []Topic) error {
 	}
 	var upTopics []Topic
 	for _, topic := range topics {
-		for _, nowTopic := range nowTopics {
+		for i, nowTopic := range nowTopics {
 			if topic.Channel == nowTopic.Channel {
 				// TODO: duplication check
-				nowTopic.Subscribers = append(nowTopic.Subscribers, topic.Subscribers...)
+				nowTopics[i].Subscribers = append(nowTopic.Subscribers, topic.Subscribers...)
 				upTopics = append(upTopics, topic)
 				break
 			}
@@ -86,7 +99,7 @@ func (d *TopicData) Update(topics []Topic) error {
 	}
 
 	// update file
-	if err = writeFile(topics, d.Path); err != nil {
+	if err = writeFile(nowTopics, d.Path); err != nil {
 		return err
 	}
 
