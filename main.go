@@ -15,4 +15,5 @@ func main() {
 	if err != nil {
 		log.Fatal("ListenAndServer: ", err)
 	}
+	log.Println("Server running port:8888")
 }
