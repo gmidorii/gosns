@@ -32,7 +32,7 @@ func handshakeHandler(w http.ResponseWriter, r *http.Request) {
 			Channel:    handshakePattarn,
 			Successful: false,
 		}
-		writeRes(res, w)
+		writeRes(res, w, http.StatusBadRequest)
 		return
 	}
 
@@ -42,7 +42,7 @@ func handshakeHandler(w http.ResponseWriter, r *http.Request) {
 		Successful:               true,
 		ClientID:                 geneRandStr(randLen),
 	}
-	writeRes(res, w)
+	writeRes(res, w, http.StatusOK)
 }
 
 func geneRandStr(n int) string {

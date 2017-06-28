@@ -2,6 +2,7 @@ package meta
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/midorigreen/gopubsub/channel"
@@ -16,6 +17,7 @@ var (
 // Handler is meta channel definition
 func Handler() {
 	http.HandleFunc(handshakePattarn, handshakeHandler)
+	fmt.Println("tagajgagjaljgk")
 	s := subscribe{
 		TopicData: channel.CreateTopicData(),
 	}
@@ -32,11 +34,12 @@ func decodeBody(req *http.Request, out interface{}) error {
 	return decoder.Decode(out)
 }
 
-func writeRes(v interface{}, w http.ResponseWriter) {
+func writeRes(v interface{}, w http.ResponseWriter, statusCode int) {
 	json, err := json.Marshal(v)
 	if err != nil {
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	w.Header().Set("Content-Type", "application/jsons")
 	w.Write(json)
 }

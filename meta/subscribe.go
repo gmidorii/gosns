@@ -38,14 +38,14 @@ func (s *subscribe) handler(w http.ResponseWriter, r *http.Request) {
 	err := decodeBody(r, &req)
 	if err != nil {
 		log.Println(err)
-		unsuccessed("parse request to json error", "", []string{}, w)
+		unsuccessed("parse request to json error", "", []string{}, w, http.StatusBadRequest)
 		return
 	}
 
 	registered, err := register(req, s.TopicData)
 	if err != nil {
 		log.Println(err)
-		unsuccessed(err.Error(), req.ClientID, []string{}, w)
+		unsuccessed(err.Error(), req.ClientID, []string{}, w, http.StatusInternalServerError)
 		return
 	}
 
@@ -88,15 +88,15 @@ func register(sReq subscribeReq, td *channel.TopicData) ([]string, error) {
 	return registered, nil
 }
 
-func unsuccessed(errMes, clientID string, sub []string, w http.ResponseWriter) {
-	write(false, errMes, clientID, sub, w)
+func unsuccessed(errMes, clientID string, sub []string, w http.ResponseWriter, statusCode int) {
+	write(false, errMes, clientID, sub, w, statusCode)
 }
 
 func successed(clientID string, sub []string, w http.ResponseWriter) {
-	write(true, "", clientID, sub, w)
+	write(true, "", clientID, sub, w, http.StatusOK)
 }
 
-func write(success bool, mes, clientID string, sub []string, w http.ResponseWriter) {
+func write(success bool, mes, clientID string, sub []string, w http.ResponseWriter, statusCode int) {
 	res := subscribeRes{
 		Channel:      subscribePattarn,
 		Successful:   success,
@@ -104,5 +104,5 @@ func write(success bool, mes, clientID string, sub []string, w http.ResponseWrit
 		Subscription: sub,
 		Error:        mes,
 	}
-	writeRes(res, w)
+	writeRes(res, w, statusCode)
 }
