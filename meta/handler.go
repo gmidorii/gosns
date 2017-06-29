@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/midorigreen/gopubsub/channel"
+	"github.com/midorigreen/gosns/channel"
 )
 
 var (

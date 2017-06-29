@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/midorigreen/gopubsub/channel"
+	"github.com/midorigreen/gosns/channel"
 )
 
 type subscribe struct {

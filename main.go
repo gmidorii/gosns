@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/midorigreen/gopubsub/channel"
-	"github.com/midorigreen/gopubsub/meta"
+	"github.com/midorigreen/gosns/channel"
+	"github.com/midorigreen/gosns/meta"
 )
 
 func main() {

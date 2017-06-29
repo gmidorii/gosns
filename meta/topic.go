@@ -3,7 +3,7 @@ package meta
 import (
 	"net/http"
 
-	"github.com/midorigreen/gopubsub/channel"
+	"github.com/midorigreen/gosns/channel"
 )
 
 type topic struct {
@@ -26,7 +26,7 @@ func (t *topic) handler(w http.ResponseWriter, r *http.Request) {
 		writeRes(topicRes{
 			Successful: false,
 			Error:      "failed parsing request body",
-		}, w)
+		}, w, http.StatusBadRequest)
 	}
 
 	topic := channel.Topic{
@@ -38,10 +38,10 @@ func (t *topic) handler(w http.ResponseWriter, r *http.Request) {
 			Channel:    tReq.Channel,
 			Successful: false,
 			Error:      err.Error(),
-		}, w)
+		}, w, http.StatusInternalServerError)
 	}
 	writeRes(topicRes{
 		Channel:    tReq.Channel,
 		Successful: true,
-	}, w)
+	}, w, http.StatusOK)
 }

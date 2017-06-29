@@ -1,6 +1,7 @@
 package meta
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -24,6 +25,7 @@ const (
 )
 
 func handshakeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ERROR")
 	req := handShakeReq{}
 	err := decodeBody(r, &req)
 	if err != nil {

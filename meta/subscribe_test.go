@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	httpdoc "github.com/mercari/go-httpdoc"
-	"github.com/midorigreen/gopubsub/channel"
+	"github.com/midorigreen/gosns/channel"
 
 	"bytes"
 	"net/http"
