@@ -37,7 +37,7 @@ func writeRes(v interface{}, w http.ResponseWriter, statusCode int) {
 	if err != nil {
 		return
 	}
-	w.WriteHeader(statusCode)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
 	w.Write(json)
 }

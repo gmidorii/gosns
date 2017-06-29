@@ -7,15 +7,15 @@ import (
 )
 
 type handShakeReq struct {
-	Channel                  string
-	SupportedConnectionTypes []string
+	Channel                  string   `json:"channel"`
+	SupportedConnectionTypes []string `json:"supported_connection_types"`
 }
 
 type handShakeRes struct {
-	Channel                  string
-	SupportedConnectionTypes []string
-	ClientID                 string `json:"client_id"`
-	Successful               bool
+	Channel                  string   `json:"channel"`
+	SupportedConnectionTypes []string `json:"supported_connection_types"`
+	ClientID                 string   `json:"client_id"`
+	Successful               bool     `json:"successful"`
 }
 
 const (
