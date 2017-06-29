@@ -2,6 +2,7 @@ package meta
 
 import (
 	"bytes"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 )
@@ -33,7 +34,7 @@ func TestDecodeBody(t *testing.T) {
 func TestWriteRes(t *testing.T) {
 	w := httptest.NewRecorder()
 	sample := Sample{2, "hoge"}
-	writeRes(sample, w)
+	writeRes(sample, w, http.StatusOK)
 	resp := w.Result()
 	if len(resp.Header) != 1 {
 		t.Error("unexpected header length")

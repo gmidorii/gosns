@@ -7,15 +7,13 @@ import (
 )
 
 type handShakeReq struct {
-	Channel                  string   `json:"channel"`
-	SupportedConnectionTypes []string `json:"supported_connection_types"`
+	Channel string `json:"channel"`
 }
 
 type handShakeRes struct {
-	Channel                  string   `json:"channel"`
-	SupportedConnectionTypes []string `json:"supported_connection_types"`
-	ClientID                 string   `json:"client_id"`
-	Successful               bool     `json:"successful"`
+	Channel    string `json:"channel"`
+	ClientID   string `json:"client_id"`
+	Successful bool   `json:"successful"`
 }
 
 const (
@@ -37,10 +35,9 @@ func handshakeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := handShakeRes{
-		Channel:                  handshakePattarn,
-		SupportedConnectionTypes: req.SupportedConnectionTypes,
-		Successful:               true,
-		ClientID:                 geneRandStr(randLen),
+		Channel:    handshakePattarn,
+		Successful: true,
+		ClientID:   geneRandStr(randLen),
 	}
 	writeRes(res, w, http.StatusOK)
 }
