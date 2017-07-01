@@ -117,6 +117,7 @@ func (d *TopicData) Update(topics []Topic) error {
 func (d *TopicData) Fetch(channel string) (Topic, error) {
 	str, ok := d.Ds.Get(channel)
 	if ok != true {
+		log.Println("Not Found Cache")
 		// fail safe for cache
 		topics, err := LoadFile(d.Path)
 		if err != nil {
