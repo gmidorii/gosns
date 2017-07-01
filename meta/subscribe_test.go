@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/emluque/dscache"
 	httpdoc "github.com/mercari/go-httpdoc"
 	"github.com/midorigreen/gosns/channel"
 
@@ -15,65 +16,7 @@ import (
 	"net/http"
 
 	"path/filepath"
-
-	"github.com/emluque/dscache"
 )
-
-func createTopicData(path string, t *testing.T) *channel.TopicData {
-	ds, err := dscache.New(2 * dscache.MB)
-	if err != nil {
-		t.Error("failed create cache")
-	}
-	topics, err := channel.LoadFile(path)
-	if err != nil {
-		t.Error("failed load topics")
-	}
-
-	// set cache
-	for _, v := range topics {
-		subByte, err := json.Marshal(v.Subscribers)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		if err = ds.Set(v.Channel, string(subByte), 24*time.Hour); err != nil {
-			log.Fatalln(err)
-		}
-	}
-	return &channel.TopicData{
-		Path: path,
-		Ds:   ds,
-	}
-}
-
-func createSubscribedFile(path string) error {
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	topics := []channel.Topic{}
-	topics = append(topics, channel.Topic{
-		Channel: "/golang",
-	})
-	jsonTopics, err := json.Marshal(topics)
-	if err != nil {
-		return err
-	}
-	_, err = file.Write([]byte(jsonTopics))
-	return err
-}
-
-func deleteTestFile(path string) error {
-	return os.Remove(path)
-}
-
-func contains(s string, slice []channel.Subscriber) bool {
-	for _, v := range slice {
-		if v.ClientID == s {
-			return true
-		}
-	}
-	return false
-}
 
 func TestSubscribeHandler(t *testing.T) {
 	document := &httpdoc.Document{
@@ -150,4 +93,64 @@ func TestSubscribeHandler(t *testing.T) {
 	if err = deleteTestFile(path); err != nil {
 		t.Error("failed delete file")
 	}
+}
+
+/**
+ * support function
+ */
+
+func createTopicData(path string, t *testing.T) *channel.TopicData {
+	ds, err := dscache.New(2 * dscache.MB)
+	if err != nil {
+		t.Error("failed create cache")
+	}
+	topics, err := channel.LoadFile(path)
+	if err != nil {
+		t.Error("failed load topics")
+	}
+
+	// set cache
+	for _, v := range topics {
+		subByte, err := json.Marshal(v.Subscribers)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		if err = ds.Set(v.Channel, string(subByte), 24*time.Hour); err != nil {
+			log.Fatalln(err)
+		}
+	}
+	return &channel.TopicData{
+		Path: path,
+		Ds:   ds,
+	}
+}
+
+func createSubscribedFile(path string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	topics := []channel.Topic{}
+	topics = append(topics, channel.Topic{
+		Channel: "/golang",
+	})
+	jsonTopics, err := json.Marshal(topics)
+	if err != nil {
+		return err
+	}
+	_, err = file.Write([]byte(jsonTopics))
+	return err
+}
+
+func deleteTestFile(path string) error {
+	return os.Remove(path)
+}
+
+func contains(s string, slice []channel.Subscriber) bool {
+	for _, v := range slice {
+		if v.ClientID == s {
+			return true
+		}
+	}
+	return false
 }
