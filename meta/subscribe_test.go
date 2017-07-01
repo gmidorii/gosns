@@ -35,7 +35,8 @@ func TestSubscribeHandler(t *testing.T) {
 		}
 	}()
 
-	path := "./subscribed-test.json"
+	pwd, _ := os.Getwd()
+	path := filepath.Join(pwd, "/subscribed-test.json")
 	err := createSubscribedFile(path)
 	if err != nil {
 		t.Error("failed test file created")
@@ -44,10 +45,17 @@ func TestSubscribeHandler(t *testing.T) {
 		TopicData: createTopicData(path, t),
 	}
 
-	mux := http.NewServeMux()
-	mux.Handle("/meta/subscribe", httpdoc.Record(http.HandlerFunc(s.handler), doc, &httpdoc.RecordOption{Description: "Register topic subscribed"}))
-	ts := httptest.NewServer(mux)
-	defer ts.Close()
+	ts, err := setTestServer("/meta/subscribe", doc, s.handler, "Register topic subscribed")
+	if err != nil {
+		t.Errorf("failed create test server: %s", err)
+	}
+	defer func() {
+		ts.Close()
+		// tear down
+		if err = deleteTestFile(path); err != nil {
+			t.Error("failed delete file")
+		}
+	}()
 
 	reqBody := `
 {
@@ -87,11 +95,6 @@ func TestSubscribeHandler(t *testing.T) {
 	}
 	if topic.Channel != "/golang" {
 		t.Errorf("upexpected topic from cache: %s", err)
-	}
-
-	// tear down
-	if err = deleteTestFile(path); err != nil {
-		t.Error("failed delete file")
 	}
 }
 

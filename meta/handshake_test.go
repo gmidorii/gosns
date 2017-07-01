@@ -10,8 +10,6 @@ import (
 
 	"net/http"
 
-	"net/http/httptest"
-
 	httpdoc "github.com/mercari/go-httpdoc"
 )
 
@@ -32,9 +30,10 @@ func TestHandshakeHandler(t *testing.T) {
 		}
 	}()
 
-	mux := http.NewServeMux()
-	mux.Handle("/meta/handshake", httpdoc.Record(http.HandlerFunc(handshakeHandler), doc, &httpdoc.RecordOption{Description: "Handshake Server"}))
-	ts := httptest.NewServer(mux)
+	ts, err := setTestServer("/meta/handshake", doc, handshakeHandler, "Handshake server")
+	if err != nil {
+		t.Errorf("failed create test server: %s", err)
+	}
 	defer ts.Close()
 
 	reqBody := `
