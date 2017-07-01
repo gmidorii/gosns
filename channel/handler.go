@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	topicsPath = "/topics"
+	topicPath = "/topic"
 )
 
 type topic struct {
@@ -23,7 +23,7 @@ func Handler() {
 	t := topic{
 		TopicData: CreateTopicData(),
 	}
-	http.HandleFunc(topicsPath, t.handler)
+	http.HandleFunc(topicPath, t.handler)
 }
 
 func (t *topic) handler(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +31,7 @@ func (t *topic) handler(w http.ResponseWriter, r *http.Request) {
 	decodeBody(r, &tReq)
 	topic, err := t.TopicData.Fetch(tReq.Channel)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("not found channel"))
 		return
 	}
