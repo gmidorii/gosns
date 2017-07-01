@@ -99,6 +99,13 @@ func TestSubscribeHandler(t *testing.T) {
  * support function
  */
 
+func setTestServer(apiPath string, doc *httpdoc.Document, handler func(http.ResponseWriter, *http.Request), docDescription string) (*httptest.Server, error) {
+	mux := http.NewServeMux()
+	mux.Handle(apiPath, httpdoc.Record(http.HandlerFunc(handler), doc, &httpdoc.RecordOption{Description: docDescription}))
+	ts := httptest.NewServer(mux)
+	return ts, nil
+}
+
 func createTopicData(path string, t *testing.T) *channel.TopicData {
 	ds, err := dscache.New(2 * dscache.MB)
 	if err != nil {

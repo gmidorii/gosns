@@ -3,7 +3,6 @@ package meta
 import (
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -30,20 +29,27 @@ func TestTopicHandler(t *testing.T) {
 		}
 	}()
 
+	apiPath := "/meta/topic"
 	pwd, _ := os.Getwd()
 	path := filepath.Join(pwd, "subscribed-test.json")
 	err := createSubscribedFile(path)
 	if err != nil {
-		t.Error("failed test file created")
+		t.Errorf("failed create subscribed file: %s", err)
 	}
 	topic := topic{
 		TopicData: createTopicData(path, t),
 	}
-	mux := http.NewServeMux()
-	apiPath := "/meta/topic"
-	mux.Handle(apiPath, httpdoc.Record(http.HandlerFunc(topic.handler), doc, &httpdoc.RecordOption{Description: "Register new topic"}))
-	ts := httptest.NewServer(mux)
-	defer ts.Close()
+	ts, err := setTestServer(apiPath, doc, topic.handler, "Register new topic")
+	defer func() {
+		ts.Close()
+		if err := deleteTestFile(path); err != nil {
+			t.Error("failed delete file")
+		}
+	}()
+
+	if err != nil {
+		t.Errorf("failed setting test server: %s", err)
+	}
 
 	reqBody := `
 {
@@ -67,8 +73,4 @@ func TestTopicHandler(t *testing.T) {
 		t.Errorf("failed topic append: %s", topicRes.Error)
 	}
 
-	// tear down
-	if err = deleteTestFile(path); err != nil {
-		t.Error("failed delete file")
-	}
 }
