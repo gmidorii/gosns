@@ -20,7 +20,7 @@ func init() {
 	if dsErr != nil {
 		log.Fatalf("err: %s", dsErr)
 	}
-	topics, err := loadFile(file)
+	topics, err := LoadFile(file)
 	if err != nil {
 		log.Fatalf("err: %s", err)
 	}
@@ -59,7 +59,7 @@ func CreateTopicData() *TopicData {
 
 // Add is add topic data to file and cache
 func (d *TopicData) Add(topic Topic) error {
-	topics, err := loadFile(d.Path)
+	topics, err := LoadFile(d.Path)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (d *TopicData) Add(topic Topic) error {
 
 // Update is update topic to file and cache
 func (d *TopicData) Update(topics []Topic) error {
-	nowTopics, err := loadFile(d.Path)
+	nowTopics, err := LoadFile(d.Path)
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (d *TopicData) Fetch(channel string) (Topic, error) {
 	str, ok := d.Ds.Get(channel)
 	if ok != true {
 		// fail safe for cache
-		topics, err := loadFile(d.Path)
+		topics, err := LoadFile(d.Path)
 		if err != nil {
 			return Topic{}, errors.New("not found channel from cache and " + err.Error())
 		}
@@ -141,7 +141,8 @@ func (d *TopicData) Fetch(channel string) (Topic, error) {
 	}, nil
 }
 
-func loadFile(path string) ([]Topic, error) {
+// LoadFile is loading topic file and reformat topic struct
+func LoadFile(path string) ([]Topic, error) {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		return nil, err
