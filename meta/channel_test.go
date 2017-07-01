@@ -24,19 +24,19 @@ func TestTopicHandler(t *testing.T) {
 	defer func() {
 		pwd, _ := os.Getwd()
 		os.Setenv("HTTPDOC", "1")
-		if err := doc.Generate(filepath.Join(pwd, "../doc/meta-topic.md")); err != nil {
+		if err := doc.Generate(filepath.Join(pwd, "../doc/meta-channel.md")); err != nil {
 			t.Fatalf("err: %s", err)
 		}
 	}()
 
-	apiPath := "/meta/topic"
+	apiPath := "/meta/channel"
 	pwd, _ := os.Getwd()
 	path := filepath.Join(pwd, "subscribed-test.json")
 	err := createSubscribedFile(path)
 	if err != nil {
 		t.Errorf("failed create subscribed file: %s", err)
 	}
-	topic := topic{
+	topic := channel{
 		TopicData: createTopicData(path, t),
 	}
 	ts, err := setTestServer(apiPath, doc, topic.handler, "Register new topic")
@@ -62,15 +62,15 @@ func TestTopicHandler(t *testing.T) {
 		t.Error("server connection error")
 	}
 	defer res.Body.Close()
-	var topicRes topicRes
+	var channelRes channelRes
 	decoder := json.NewDecoder(res.Body)
-	decoder.Decode(&topicRes)
+	decoder.Decode(&channelRes)
 
-	if topicRes.Channel != "govim" {
-		t.Errorf("unexpected channel name: %s", topicRes.Channel)
+	if channelRes.Channel != "govim" {
+		t.Errorf("unexpected channel name: %s", channelRes.Channel)
 	}
-	if topicRes.Successful != true {
-		t.Errorf("failed topic append: %s", topicRes.Error)
+	if channelRes.Successful != true {
+		t.Errorf("failed topic append: %s", channelRes.Error)
 	}
 
 }

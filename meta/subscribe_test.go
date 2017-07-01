@@ -109,12 +109,12 @@ func setTestServer(apiPath string, doc *httpdoc.Document, handler func(http.Resp
 	return ts, nil
 }
 
-func createTopicData(path string, t *testing.T) *channel.TopicData {
+func createTopicData(path string, t *testing.T) *topic.TopicData {
 	ds, err := dscache.New(2 * dscache.MB)
 	if err != nil {
 		t.Error("failed create cache")
 	}
-	topics, err := channel.LoadFile(path)
+	topics, err := topic.LoadFile(path)
 	if err != nil {
 		t.Error("failed load topics")
 	}
@@ -129,7 +129,7 @@ func createTopicData(path string, t *testing.T) *channel.TopicData {
 			log.Fatalln(err)
 		}
 	}
-	return &channel.TopicData{
+	return &topic.TopicData{
 		Path: path,
 		Ds:   ds,
 	}
@@ -140,8 +140,8 @@ func createSubscribedFile(path string) error {
 	if err != nil {
 		return err
 	}
-	topics := []channel.Topic{}
-	topics = append(topics, channel.Topic{
+	topics := []topic.Topic{}
+	topics = append(topics, topic.Topic{
 		Channel: "/golang",
 	})
 	jsonTopics, err := json.Marshal(topics)
@@ -156,7 +156,7 @@ func deleteTestFile(path string) error {
 	return os.Remove(path)
 }
 
-func contains(s string, slice []channel.Subscriber) bool {
+func contains(s string, slice []topic.Subscriber) bool {
 	for _, v := range slice {
 		if v.ClientID == s {
 			return true
