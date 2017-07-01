@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/midorigreen/gosns/channel"
+	"github.com/midorigreen/gosns/topic"
 )
 
 var (
@@ -17,13 +17,13 @@ var (
 func Handler() {
 	http.HandleFunc(handshakePattarn, handshakeHandler)
 	s := subscribe{
-		TopicData: channel.CreateTopicData(),
+		TopicData: topic.CreateTopicData(),
 	}
 	http.HandleFunc(subscribePattarn, s.handler)
-	t := topic{
-		TopicData: channel.CreateTopicData(),
+	c := channel{
+		TopicData: topic.CreateTopicData(),
 	}
-	http.HandleFunc(topicPattarn, t.handler)
+	http.HandleFunc(topicPattarn, c.handler)
 }
 
 func decodeBody(req *http.Request, out interface{}) error {

@@ -3,44 +3,44 @@ package meta
 import (
 	"net/http"
 
-	"github.com/midorigreen/gosns/channel"
+	"github.com/midorigreen/gosns/topic"
 )
 
-type topic struct {
-	TopicData *channel.TopicData
+type channel struct {
+	TopicData *topic.TopicData
 }
 
-type topicReq struct {
+type channelReq struct {
 	Channel string `json:"channel"`
 }
 
-type topicRes struct {
+type channelRes struct {
 	Channel    string `json:"channel,omitempty"`
 	Successful bool   `json:"successful"`
 	Error      string `json:"error,omitempty"`
 }
 
-func (t *topic) handler(w http.ResponseWriter, r *http.Request) {
-	var tReq topicReq
+func (t *channel) handler(w http.ResponseWriter, r *http.Request) {
+	var tReq channelReq
 	if err := decodeBody(r, &tReq); err != nil {
-		writeRes(topicRes{
+		writeRes(channelRes{
 			Successful: false,
 			Error:      "failed parsing request body",
 		}, w, http.StatusBadRequest)
 	}
 
-	topic := channel.Topic{
+	topic := topic.Topic{
 		Channel: tReq.Channel,
 	}
 
 	if err := t.TopicData.Add(topic); err != nil {
-		writeRes(topicRes{
+		writeRes(channelRes{
 			Channel:    tReq.Channel,
 			Successful: false,
 			Error:      err.Error(),
 		}, w, http.StatusInternalServerError)
 	}
-	writeRes(topicRes{
+	writeRes(channelRes{
 		Channel:    tReq.Channel,
 		Successful: true,
 	}, w, http.StatusOK)

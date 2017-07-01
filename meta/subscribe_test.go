@@ -10,7 +10,7 @@ import (
 
 	"github.com/emluque/dscache"
 	httpdoc "github.com/mercari/go-httpdoc"
-	"github.com/midorigreen/gosns/channel"
+	"github.com/midorigreen/gosns/topic"
 
 	"bytes"
 	"net/http"

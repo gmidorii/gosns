@@ -5,11 +5,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/midorigreen/gosns/channel"
+	"github.com/midorigreen/gosns/topic"
 )
 
 type subscribe struct {
-	TopicData *channel.TopicData
+	TopicData *topic.TopicData
 }
 
 type subscribeReq struct {
@@ -52,21 +52,21 @@ func (s *subscribe) handler(w http.ResponseWriter, r *http.Request) {
 	successed(req.ClientID, registered, w)
 }
 
-func register(sReq subscribeReq, td *channel.TopicData) ([]string, error) {
-	format := channel.FormatValue(sReq.Method.Format)
-	if format == channel.Error {
+func register(sReq subscribeReq, td *topic.TopicData) ([]string, error) {
+	format := topic.FormatValue(sReq.Method.Format)
+	if format == topic.Error {
 		return nil, errors.New("subscribed format error: " + format.String())
 	}
 
 	var registered = []string{}
-	var topics []channel.Topic
+	var topics []topic.Topic
 	for _, v := range sReq.Subscriptions {
-		topic := channel.Topic{
+		topic := topic.Topic{
 			Channel: v,
-			Subscribers: []channel.Subscriber{
+			Subscribers: []topic.Subscriber{
 				{
 					ClientID: sReq.ClientID,
-					Method: channel.Method{
+					Method: topic.Method{
 						Format:     format,
 						WebFookURL: sReq.Method.WebHookURL,
 					},

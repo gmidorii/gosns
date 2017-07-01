@@ -1,6 +1,6 @@
-package channel
+package topic
 
-// Topic is main struct in package channel
+// Topic is main struct in package topic
 // This has channle name and subscriber list
 type Topic struct {
 	Channel     string

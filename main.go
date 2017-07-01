@@ -7,8 +7,8 @@ import (
 
 	"flag"
 
-	"github.com/midorigreen/gosns/channel"
 	"github.com/midorigreen/gosns/meta"
+	"github.com/midorigreen/gosns/topic"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 }
 
 func run(port int) error {
-	channel.Handler()
+	topic.Handler()
 	meta.Handler()
 	err := http.ListenAndServe(":"+fmt.Sprint(port), nil)
 	if err != nil {
