@@ -2,30 +2,46 @@ package meta
 
 import (
 	"encoding/json"
+	"log"
 	"net/http/httptest"
 	"os"
-	"sync"
 	"testing"
+	"time"
 
 	httpdoc "github.com/mercari/go-httpdoc"
 	"github.com/midorigreen/gosns/channel"
 
 	"bytes"
 	"net/http"
+
+	"path/filepath"
+
+	"github.com/emluque/dscache"
 )
 
-func createTopicPool(path string, t *testing.T) *channel.TopicPool {
-	return &channel.TopicPool{
-		Value: sync.Pool{
-			New: func() interface{} {
-				topics, err := channel.LoadFile(path)
-				if err != nil {
-					t.Error("failed subscribed file read")
-				}
-				return &topics
-			},
-		},
+func createTopicData(path string, t *testing.T) *channel.TopicData {
+	ds, err := dscache.New(2 * dscache.MB)
+	if err != nil {
+		t.Error("failed create cache")
+	}
+	topics, err := channel.LoadFile(path)
+	if err != nil {
+		t.Error("failed load topics")
+	}
+
+	// set cache
+	for _, v := range topics {
+		subByte, err := json.Marshal(v.Subscribers)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		if err = ds.Set(v.Channel, string(subByte), 24*time.Hour); err != nil {
+			log.Fatalln(err)
+		}
+	}
+	return &channel.TopicData{
 		Path: path,
+		Ds:   ds,
 	}
 }
 
@@ -59,13 +75,19 @@ func contains(s string, slice []channel.Subscriber) bool {
 	return false
 }
 
-func TestHandler(t *testing.T) {
+func TestSubscribeHandler(t *testing.T) {
 	document := &httpdoc.Document{
-		Name:           "Subscribe API",
-		ExcludeHeaders: []string{},
+		Name: "Subscribe API",
+		ExcludeHeaders: []string{
+			"Accept-Encoding",
+			"Content-Length",
+			"User-Agent",
+		},
 	}
 	defer func() {
-		if err := document.Generate("doc/subscribe.md"); err != nil {
+		pwd, _ := os.Getwd()
+		os.Setenv("HTTPDOC", "1")
+		if err := document.Generate(filepath.Join(pwd, "../doc/subscribe.md")); err != nil {
 			t.Fatalf("err: %s", err)
 		}
 	}()
@@ -75,9 +97,10 @@ func TestHandler(t *testing.T) {
 	if err != nil {
 		t.Error("failed test file created")
 	}
-	s := Subscribe{
-		TopicPool: createTopicPool(path, t),
+	s := subscribe{
+		TopicData: createTopicData(path, t),
 	}
+
 	mux := http.NewServeMux()
 	mux.Handle("/meta/subscribe", httpdoc.Record(http.HandlerFunc(s.handler), document, &httpdoc.RecordOption{Description: "Register topic subscribed"}))
 	ts := httptest.NewServer(mux)
@@ -109,26 +132,21 @@ func TestHandler(t *testing.T) {
 		t.Error("unexpected channel name: " + sRes.Channel)
 	}
 	if sRes.Successful != true {
-		t.Error("failed subscribed")
+		t.Errorf("failed subscribed: %s", sRes.Error)
 	}
 	if sRes.ClientID != "hogehoge" {
-		t.Error("unexpected clientID: " + sRes.ClientID)
+		t.Errorf("unexpected clientID: " + sRes.ClientID)
 	}
 
-	// cache delete (temporary solution)
-	s.TopicPool.Value.Get()
-	topics := s.TopicPool.Get().([]channel.Topic)
-	f := false
-	for _, v := range topics {
-		if v.Channel == "/golang" {
-			f = contains("hogehoge", v.Subscribers)
-			break
-		}
+	topic, err := s.TopicData.Fetch("/golang")
+	if err != nil {
+		t.Errorf("failed fetch topic err: %s", err)
 	}
-	if f != true {
-		t.Error("failed cache clear pool")
+	if topic.Channel != "/golang" {
+		t.Errorf("upexpected topic from cache: %s", err)
 	}
 
+	// tear down
 	if err = deleteTestFile(path); err != nil {
 		t.Error("failed delete file")
 	}
