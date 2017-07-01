@@ -1,19 +1,32 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+
+	"flag"
 
 	"github.com/midorigreen/gosns/channel"
 	"github.com/midorigreen/gosns/meta"
 )
 
 func main() {
+	fPort := flag.Int("p", 8888, "set server port number")
+	flag.Parse()
+
+	if err := run(*fPort); err != nil {
+		log.Fatalf("err: %s", err)
+	}
+}
+
+func run(port int) error {
 	channel.Handler()
 	meta.Handler()
-	err := http.ListenAndServe(":8888", nil)
+	err := http.ListenAndServe(":"+fmt.Sprint(port), nil)
 	if err != nil {
-		log.Fatal("ListenAndServer: ", err)
+		return err
 	}
-	log.Println("Server running port:8888")
+	log.Printf("Server running port: %d \n", port)
+	return nil
 }

@@ -36,7 +36,7 @@ func (s *SlackSender) Send(body string) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return errors.New("bad request status code: " + string(resp.StatusCode))
+		return errors.New("bad request status code: " + fmt.Sprint(resp.StatusCode))
 	}
 
 	respBody, err := ioutil.ReadAll(resp.Body)

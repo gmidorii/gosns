@@ -2,6 +2,7 @@ package meta
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,7 +24,7 @@ func TestDecodeBody(t *testing.T) {
 
 	if s.ID != 1 {
 		t.Error("failed id")
-		t.Log("s.ID: " + string(s.ID) + ", id: 1")
+		t.Log("s.ID: " + fmt.Sprint(s.ID) + ", id: 1")
 	}
 	if s.Name != "hoge" {
 		t.Error("failed name")
