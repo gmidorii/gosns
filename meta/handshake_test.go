@@ -2,6 +2,8 @@ package meta
 
 import (
 	"bytes"
+	"encoding/json"
+	"os"
 	"testing"
 
 	"path/filepath"
@@ -13,13 +15,19 @@ import (
 	httpdoc "github.com/mercari/go-httpdoc"
 )
 
-func TestHandler(t *testing.T) {
+func TestHandshakeHandler(t *testing.T) {
 	doc := &httpdoc.Document{
-		Name:           "Handshake API",
-		ExcludeHeaders: []string{},
+		Name: "Handshake API",
+		ExcludeHeaders: []string{
+			"Accept-Encoding",
+			"Content-Length",
+			"User-Agent",
+		},
 	}
 	defer func() {
-		if err := doc.Generate(filepath.Join("doc", "handshake.md")); err != nil {
+		pwd, _ := os.Getwd()
+		os.Setenv("HTTPDOC", "1")
+		if err := doc.Generate(filepath.Join(pwd, "../doc/handshake.md")); err != nil {
 			t.Fatalf("err: %s", err)
 		}
 	}()
@@ -38,5 +46,19 @@ func TestHandler(t *testing.T) {
 	res, err := http.Post(ts.URL+"/meta/handshake", "application/json", bytes.NewBufferString(reqBody))
 	if err != nil {
 		t.Error("server connection error")
+	}
+	defer res.Body.Close()
+	var hRes handShakeRes
+	decoder := json.NewDecoder(res.Body)
+	decoder.Decode(&hRes)
+
+	if hRes.Channel != "/meta/handshake" {
+		t.Errorf("unexpected channel name: %s", hRes.Channel)
+	}
+	if hRes.Successful != true {
+		t.Errorf("failed handshake")
+	}
+	if len(hRes.ClientID) != 10 {
+		t.Errorf("unexpected clientid length: %d", len(hRes.ClientID))
 	}
 }

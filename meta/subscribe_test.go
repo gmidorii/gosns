@@ -19,7 +19,7 @@ import (
 )
 
 func TestSubscribeHandler(t *testing.T) {
-	document := &httpdoc.Document{
+	doc := &httpdoc.Document{
 		Name: "Subscribe API",
 		ExcludeHeaders: []string{
 			"Accept-Encoding",
@@ -30,7 +30,7 @@ func TestSubscribeHandler(t *testing.T) {
 	defer func() {
 		pwd, _ := os.Getwd()
 		os.Setenv("HTTPDOC", "1")
-		if err := document.Generate(filepath.Join(pwd, "../doc/subscribe.md")); err != nil {
+		if err := doc.Generate(filepath.Join(pwd, "../doc/subscribe.md")); err != nil {
 			t.Fatalf("err: %s", err)
 		}
 	}()
@@ -45,7 +45,7 @@ func TestSubscribeHandler(t *testing.T) {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/meta/subscribe", httpdoc.Record(http.HandlerFunc(s.handler), document, &httpdoc.RecordOption{Description: "Register topic subscribed"}))
+	mux.Handle("/meta/subscribe", httpdoc.Record(http.HandlerFunc(s.handler), doc, &httpdoc.RecordOption{Description: "Register topic subscribed"}))
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
