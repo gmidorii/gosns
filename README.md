@@ -18,6 +18,13 @@ Using messaging model is Pub-Sub messaging model.
 % ./gosns
 ```
 
+## API Doc
+```
+├── meta
+│   ├── doc
+│      └── subscribe.md
+```
+
 ## TODO
 - Increasing Subsriver accesepting method
   - [ ] Mail
