@@ -30,7 +30,7 @@ func TestSubscribeHandler(t *testing.T) {
 	defer func() {
 		pwd, _ := os.Getwd()
 		os.Setenv("HTTPDOC", "1")
-		if err := doc.Generate(filepath.Join(pwd, "../doc/subscribe.md")); err != nil {
+		if err := doc.Generate(filepath.Join(pwd, "../doc/meta-subscribe.md")); err != nil {
 			t.Fatalf("err: %s", err)
 		}
 	}()

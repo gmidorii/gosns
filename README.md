@@ -20,9 +20,9 @@ Using messaging model is Pub-Sub messaging model.
 
 ## API Doc
 ```
-├── meta
-│   ├── doc
-│      └── subscribe.md
+doc
+├── meta-handshake.md
+└── meta-subscribe.md
 ```
 
 ## TODO

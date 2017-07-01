@@ -27,7 +27,7 @@ func TestHandshakeHandler(t *testing.T) {
 	defer func() {
 		pwd, _ := os.Getwd()
 		os.Setenv("HTTPDOC", "1")
-		if err := doc.Generate(filepath.Join(pwd, "../doc/handshake.md")); err != nil {
+		if err := doc.Generate(filepath.Join(pwd, "../doc/meta-handshake.md")); err != nil {
 			t.Fatalf("err: %s", err)
 		}
 	}()
