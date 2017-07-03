@@ -16,7 +16,7 @@ type subscribe struct {
 type subscribeReq struct {
 	Channel       string    `json:"channel"`
 	ClientID      string    `json:"client_id"`
-	Subscriptions []string  `json:"subscriptions`
+	Subscriptions []string  `json:"subscriptions"`
 	Method        strMethod `json:"method"`
 }
 
@@ -46,7 +46,7 @@ func (s *subscribe) handler(w http.ResponseWriter, r *http.Request) {
 	registered, err := register(req, s.TopicData)
 	if err != nil {
 		log.Println(err)
-		unsuccessed(err.Error(), req.ClientID, []string{}, w, http.StatusInternalServerError)
+		unsuccessed(err.Error(), req.ClientID, []string{}, w, http.StatusBadRequest)
 		return
 	}
 

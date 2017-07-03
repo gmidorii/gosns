@@ -1,6 +1,6 @@
 package topic
 
-import "log"
+import "github.com/midorigreen/gosns/logging"
 
 func sends(topic Topic, topicReq topicReq) {
 	for _, v := range topic.Subscribers {
@@ -15,7 +15,7 @@ func sends(topic Topic, topicReq topicReq) {
 			continue
 		}
 		if err := service.Send(topicReq.Data); err != nil {
-			log.Println(err)
+			logging.Logger.Error(err.Error())
 		}
 	}
 }
