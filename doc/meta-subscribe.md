@@ -32,7 +32,7 @@ Request example
 {
   "channel": "/meta/subscribe",
   "client_id": "hogehoge",
-  "subscription" : [
+  "subscriptions" : [
   	"/golang"
   ],
   "method" : {

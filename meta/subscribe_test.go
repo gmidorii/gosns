@@ -61,7 +61,7 @@ func TestSubscribeHandler(t *testing.T) {
 {
   "channel": "/meta/subscribe",
   "client_id": "hogehoge",
-  "subscription" : [
+  "subscriptions" : [
   	"/golang"
   ],
   "method" : {

@@ -15,7 +15,7 @@ type subscribe struct {
 type subscribeReq struct {
 	Channel       string    `json:"channel"`
 	ClientID      string    `json:"client_id"`
-	Subscriptions []string  `json:"subscription"`
+	Subscriptions []string  `json:"subscriptions`
 	Method        strMethod `json:"method"`
 }
 
@@ -25,11 +25,11 @@ type strMethod struct {
 }
 
 type subscribeRes struct {
-	Channel      string   `json:"channel"`
-	Successful   bool     `json:"successful"`
-	ClientID     string   `json:"clientId"`
-	Subscription []string `json:"subscription"`
-	Error        string   `json:",omitempty"`
+	Channel       string   `json:"channel"`
+	Successful    bool     `json:"successful"`
+	ClientID      string   `json:"clientId"`
+	Subscriptions []string `json:"subscriptions"`
+	Error         string   `json:",omitempty"`
 }
 
 func (s *subscribe) handler(w http.ResponseWriter, r *http.Request) {
@@ -98,11 +98,11 @@ func successed(clientID string, sub []string, w http.ResponseWriter) {
 
 func write(success bool, mes, clientID string, sub []string, w http.ResponseWriter, statusCode int) {
 	res := subscribeRes{
-		Channel:      subscribePattarn,
-		Successful:   success,
-		ClientID:     clientID,
-		Subscription: sub,
-		Error:        mes,
+		Channel:       subscribePattarn,
+		Successful:    success,
+		ClientID:      clientID,
+		Subscriptions: sub,
+		Error:         mes,
 	}
 	writeRes(res, w, statusCode)
 }
