@@ -3,6 +3,8 @@ package topic
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/midorigreen/gosns/logging"
 )
 
 const (
@@ -27,6 +29,7 @@ func Handler() {
 }
 
 func (t *topic) handler(w http.ResponseWriter, r *http.Request) {
+	logging.Logger.Info(r.URL.String())
 	var tReq topicReq
 	decodeBody(r, &tReq)
 	topic, err := t.TopicData.Fetch(tReq.Channel)

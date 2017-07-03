@@ -4,6 +4,8 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+
+	"github.com/midorigreen/gosns/logging"
 )
 
 type handShakeReq struct {
@@ -22,6 +24,7 @@ const (
 )
 
 func handshakeHandler(w http.ResponseWriter, r *http.Request) {
+	logging.Logger.Info(r.URL.String())
 	req := handShakeReq{}
 	err := decodeBody(r, &req)
 	if err != nil {

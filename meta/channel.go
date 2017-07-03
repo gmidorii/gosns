@@ -3,6 +3,7 @@ package meta
 import (
 	"net/http"
 
+	"github.com/midorigreen/gosns/logging"
 	"github.com/midorigreen/gosns/topic"
 )
 
@@ -21,6 +22,7 @@ type channelRes struct {
 }
 
 func (t *channel) handler(w http.ResponseWriter, r *http.Request) {
+	logging.Logger.Info(r.URL.String())
 	var tReq channelReq
 	if err := decodeBody(r, &tReq); err != nil {
 		writeRes(channelRes{

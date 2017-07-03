@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"flag"
 
+	"github.com/midorigreen/gosns/logging"
 	"github.com/midorigreen/gosns/meta"
 	"github.com/midorigreen/gosns/topic"
 )
@@ -16,17 +16,18 @@ func main() {
 	flag.Parse()
 
 	if err := run(*fPort); err != nil {
-		log.Fatalf("err: %s", err)
+		logging.Logger.Error(err.Error())
 	}
 }
 
 func run(port int) error {
 	topic.Handler()
 	meta.Handler()
+	logging.Logger.Info(fmt.Sprintf("Server running port: %d \n", port))
+
 	err := http.ListenAndServe(":"+fmt.Sprint(port), nil)
 	if err != nil {
 		return err
 	}
-	log.Printf("Server running port: %d \n", port)
 	return nil
 }

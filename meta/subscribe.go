@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/midorigreen/gosns/logging"
 	"github.com/midorigreen/gosns/topic"
 )
 
@@ -33,7 +34,7 @@ type subscribeRes struct {
 }
 
 func (s *subscribe) handler(w http.ResponseWriter, r *http.Request) {
-	log.Println(subscribePattarn)
+	logging.Logger.Info(r.URL.String())
 	req := subscribeReq{}
 	err := decodeBody(r, &req)
 	if err != nil {
