@@ -34,11 +34,3 @@ doc
 └── meta-subscribe.md
 ```
 
-## TODO
-- Increasing Subsriver accesepting method
-  - [ ] Mail
-  - [x] Slack
-  - [ ] HTTP
-  - etc
-- [ ] Add PubSubModel
-- [x] Add Topic API
