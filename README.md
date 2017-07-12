@@ -30,7 +30,9 @@ Using messaging model is Pub-Sub messaging model.
 ## API Doc
 ```
 doc
+├── meta-channel.md
 ├── meta-handshake.md
-└── meta-subscribe.md
+├── meta-subscribe.md
+└── topic.md
 ```
 
